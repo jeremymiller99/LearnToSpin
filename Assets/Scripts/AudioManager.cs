@@ -51,6 +51,19 @@ namespace LearnToSpin
         private VCA _masterVCA;
         private VCA _musicVCA;
         private VCA _sfxVCA;
+        private bool _vcaReady;
+
+        // Persisted volume levels (0..1). Defaults to full until loaded.
+        private const string PrefMaster = "vol_master";
+        private const string PrefMusic  = "vol_music";
+        private const string PrefSFX    = "vol_sfx";
+        private float _masterVolume = 1f;
+        private float _musicVolume  = 1f;
+        private float _sfxVolume    = 1f;
+
+        public float MasterVolume => _masterVolume;
+        public float MusicVolume  => _musicVolume;
+        public float SFXVolume    => _sfxVolume;
 
         private void Awake()
         {
@@ -72,7 +85,13 @@ namespace LearnToSpin
             _masterVCA = RuntimeManager.GetVCA("vca:/MasterVCA");
             _musicVCA = RuntimeManager.GetVCA("vca:/MusicVCA");
             _sfxVCA = RuntimeManager.GetVCA("vca:/SFXVCA");
-        
+            _vcaReady = true;
+
+            // Apply any volume levels saved from a previous session (defaults to full).
+            SetMasterVolume(PlayerPrefs.GetFloat(PrefMaster, 1f));
+            SetMusicVolume(PlayerPrefs.GetFloat(PrefMusic, 1f));
+            SetSFXVolume(PlayerPrefs.GetFloat(PrefSFX, 1f));
+
             // 2. CREATE ALL INSTANCES (If these are missing, the loops will silently fail!)
             _rollGroundInst = RuntimeManager.CreateInstance(rollGroundRef);
             _rollWoodInst = RuntimeManager.CreateInstance(rollWoodRef);
@@ -96,7 +115,9 @@ namespace LearnToSpin
         /// <param name="volume">Float between 0.0f (mute) and 1.0f (full volume)</param>
         public void SetMasterVolume(float volume)
         {
-            _masterVCA.setVolume(Mathf.Clamp01(volume));
+            _masterVolume = Mathf.Clamp01(volume);
+            if (_vcaReady) _masterVCA.setVolume(_masterVolume);
+            PlayerPrefs.SetFloat(PrefMaster, _masterVolume);
         }
 
         /// <summary>
@@ -105,7 +126,9 @@ namespace LearnToSpin
         /// <param name="volume">Float between 0.0f (mute) and 1.0f (full volume)</param>
         public void SetMusicVolume(float volume)
         {
-            _musicVCA.setVolume(Mathf.Clamp01(volume));
+            _musicVolume = Mathf.Clamp01(volume);
+            if (_vcaReady) _musicVCA.setVolume(_musicVolume);
+            PlayerPrefs.SetFloat(PrefMusic, _musicVolume);
         }
 
         /// <summary>
@@ -114,7 +137,9 @@ namespace LearnToSpin
         /// <param name="volume">Float between 0.0f (mute) and 1.0f (full volume)</param>
         public void SetSFXVolume(float volume)
         {
-            _sfxVCA.setVolume(Mathf.Clamp01(volume));
+            _sfxVolume = Mathf.Clamp01(volume);
+            if (_vcaReady) _sfxVCA.setVolume(_sfxVolume);
+            PlayerPrefs.SetFloat(PrefSFX, _sfxVolume);
         }
 
         private void OnDestroy()
@@ -149,7 +174,7 @@ namespace LearnToSpin
         public void PlayLand(Vector3 position = default) => RuntimeManager.PlayOneShot(landRef, position);
         public void PlayLaunchPerfect() => RuntimeManager.PlayOneShot(launchPerfectRef);
         public void PlayTireLaunch() => RuntimeManager.PlayOneShot(tireLaunchRef);
-        public void PlayTireImpact() => RuntimeManager.PlayOneShot(tireImpactRef);
+        public void PlayTireImpact(Vector3 position = default) => RuntimeManager.PlayOneShot(tireImpactRef, position);
         
         public void PlayBtnHover() => RuntimeManager.PlayOneShot(btnHoverRef);
         public void PlayBtnClick() => RuntimeManager.PlayOneShot(btnClickRef);

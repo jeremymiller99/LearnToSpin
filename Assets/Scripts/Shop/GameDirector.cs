@@ -32,6 +32,14 @@ namespace LearnToSpin
         public bool ShopOpen { get; private set; }
         public bool TransitionOpen => _dayTransition != null && _dayTransition.Active;
 
+        /// <summary>The live tire launcher for the current run (reassigned each run). Lets the pause
+        /// menu freeze gameplay input without holding a stale reference across day rebuilds.</summary>
+        public TireLauncher Launcher => _launcher;
+
+        /// <summary>True only during active flying — i.e. no meta screen is up. The pause menu uses
+        /// this so it can't open on top of the results/shop/transition screens.</summary>
+        public bool InActiveRun => !ResultsOpen && !ShopOpen && !TransitionOpen;
+
         GameBootstrap _boot;
         GameObject _tire;
         TireLauncher _launcher;
@@ -74,6 +82,10 @@ namespace LearnToSpin
             // Fade-to-black "Day X" card that hides the tire teleport between runs.
             _dayTransition = new GameObject("DayTransitionUI").AddComponent<DayTransitionUI>();
             _dayTransition.director = this;
+
+            // Esc pause overlay (Resume / Main Menu / Quit).
+            var pause = new GameObject("PauseMenuUI").AddComponent<PauseMenuUI>();
+            pause.director = this;
 
             if (AudioManager.Instance != null) AudioManager.Instance.SetMusicMode(1);
         }

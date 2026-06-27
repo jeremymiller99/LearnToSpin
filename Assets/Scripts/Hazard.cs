@@ -46,6 +46,9 @@ namespace LearnToSpin
             Color dust = mr != null ? mr.material.color : new Color(0.8f, 0.72f, 0.55f);
             HazardHitFX.Play(hit, strength, dust);
 
+            if (AudioManager.Instance != null)
+                AudioManager.Instance.PlayTireImpact(hit);
+
             // grey it out as spent feedback
             if (mr != null) mr.material.color = new Color(0.35f, 0.35f, 0.35f);
         }

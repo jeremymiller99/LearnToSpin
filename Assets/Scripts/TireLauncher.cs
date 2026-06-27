@@ -256,7 +256,10 @@ namespace LearnToSpin
             Vector3 v = _rb.linearVelocity;
             float vDown = -v.y;                 // positive while falling onto the surface
             if (vDown < minBounceSpeed) return; // tiny taps just roll
-            AudioManager.Instance.PlayLand(c.GetContact(0).point);
+
+            // No landing/impact SFX on ordinary ground bounces — the impact sound is reserved
+            // for hazard hits (see Hazard.cs). Landing a trick still cues its own sound from
+            // TrickMeterUI.
 
             float impact = bounciness * vDown;
             v.y = Mathf.Min(maxBounceUp, impact * bounceUpKeep); // limited hop

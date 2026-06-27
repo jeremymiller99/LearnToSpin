@@ -24,7 +24,7 @@ namespace LearnToSpin
         Screen _screen = Screen.Title;
         int _confirmDelete = -1; // slot index awaiting a delete confirm, or -1
 
-        GUIStyle _title, _heading, _subtitle, _slotName, _slotInfo, _btn, _btnBig, _hint;
+        GUIStyle _title, _heading, _subtitle, _slotName, _slotInfo, _btn, _btnBig, _hint, _volLabel, _volPct;
         Texture2D _white;
 
         void Start()
@@ -51,6 +51,8 @@ namespace LearnToSpin
             _btn = new GUIStyle(GUI.skin.button) { fontSize = 16, fontStyle = FontStyle.Bold };
             _btnBig = new GUIStyle(GUI.skin.button) { fontSize = 21, fontStyle = FontStyle.Bold };
             _hint = new GUIStyle(GUI.skin.label) { fontSize = 14, alignment = TextAnchor.MiddleCenter, wordWrap = true, normal = { textColor = new Color(0.65f, 0.7f, 0.8f) } };
+            _volLabel = new GUIStyle(GUI.skin.label) { fontSize = 18, fontStyle = FontStyle.Bold, alignment = TextAnchor.MiddleLeft };
+            _volPct = new GUIStyle(GUI.skin.label) { fontSize = 16, alignment = TextAnchor.MiddleRight, normal = { textColor = new Color(0.8f, 0.85f, 0.95f) } };
         }
 
         void Fill(Rect r, Color c)
@@ -207,9 +209,6 @@ namespace LearnToSpin
         void DrawDeleteConfirm(int slot, Rect r)
         {
             float pad = 18f;
-            GUI.Label(new Rect(r.x + pad, r.y + 48f, r.width * 0.4f, 24f), "Delete this profile?",
-                      new GUIStyle(_slotInfo) { normal = { textColor = new Color(1f, 0.7f, 0.7f) } });
-
             float bw = 112f, bh = 46f, bgap = 10f;
             float by = r.y + (r.height - bh) * 0.5f;
             float right = r.xMax - pad;
@@ -236,7 +235,8 @@ namespace LearnToSpin
             float w = Mathf.Min(520f, HudScale.VW - 40f);
             float x = (HudScale.VW - w) * 0.5f;
 
-            const float headH = 44f, headGap = 22f, boxH = 160f, boxGap = 16f, backH = 42f;
+            const float headH = 44f, headGap = 22f, boxPad = 24f, rowH = 54f, rowGap = 10f, boxGap = 16f, backH = 42f;
+            float boxH = boxPad * 2f + rowH * 3f + rowGap * 2f;
             float blockH = headH + headGap + boxH + boxGap + backH;
             float y = TopFor(blockH);
 
@@ -246,15 +246,50 @@ namespace LearnToSpin
             var box = new Rect(x, y, w, boxH);
             Fill(box, new Color(1f, 1f, 1f, 0.05f));
             Outline(box, 1f, new Color(1f, 1f, 1f, 0.12f));
-            GUI.Label(new Rect(box.x + 20f, box.y, box.width - 40f, box.height),
-                      "Nothing here yet —\nsettings will live on this screen.", _hint);
+
+            var am = AudioManager.Instance;
+            if (am != null)
+            {
+                float rx = box.x + boxPad, rw = box.width - boxPad * 2f, ry = box.y + boxPad;
+
+                float master = VolumeRow(new Rect(rx, ry, rw, rowH), "Master", am.MasterVolume);
+                if (!Mathf.Approximately(master, am.MasterVolume)) am.SetMasterVolume(master);
+                ry += rowH + rowGap;
+
+                float music = VolumeRow(new Rect(rx, ry, rw, rowH), "Music", am.MusicVolume);
+                if (!Mathf.Approximately(music, am.MusicVolume)) am.SetMusicVolume(music);
+                ry += rowH + rowGap;
+
+                float sfx = VolumeRow(new Rect(rx, ry, rw, rowH), "SFX", am.SFXVolume);
+                if (!Mathf.Approximately(sfx, am.SFXVolume)) am.SetSFXVolume(sfx);
+            }
+            else
+            {
+                GUI.Label(new Rect(box.x + 20f, box.y, box.width - 40f, box.height),
+                          "Audio is unavailable right now.", _hint);
+            }
             y += boxH + boxGap;
 
-            if (GUI.Button(new Rect(x, y, w, backH), "Back", _btn)) 
+            if (GUI.Button(new Rect(x, y, w, backH), "Back", _btn))
             {
                 if (AudioManager.Instance != null) AudioManager.Instance.PlayBtnClick();
                 _screen = Screen.Title;
             }
+        }
+
+        // A labelled 0..100% volume slider. Returns the (possibly changed) 0..1 value.
+        float VolumeRow(Rect r, string label, float value)
+        {
+            const float labelW = 90f, pctW = 52f, sliderH = 16f, gap = 12f;
+            GUI.Label(new Rect(r.x, r.y, labelW, r.height), label, _volLabel);
+
+            float sx = r.x + labelW + gap;
+            float sw = r.width - labelW - pctW - gap * 2f;
+            float sy = r.y + (r.height - sliderH) * 0.5f;
+            float v = GUI.HorizontalSlider(new Rect(sx, sy, sw, sliderH), value, 0f, 1f);
+
+            GUI.Label(new Rect(r.xMax - pctW, r.y, pctW, r.height), Mathf.RoundToInt(v * 100f) + "%", _volPct);
+            return v;
         }
 
         void LoadGame()
