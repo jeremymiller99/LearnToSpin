@@ -97,6 +97,7 @@ namespace LearnToSpin
                 _stampTierData = Tiers[TierIndex(_prevAir)];
                 _stamp = StampDur;
                 _stampAnchor = ScreenAnchor(out _);
+                AudioManager.Instance.PlayLand(target != null ? target.position : default);
             }
             if (_stamp > 0f) _stamp -= Time.deltaTime;
 

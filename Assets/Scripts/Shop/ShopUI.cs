@@ -62,7 +62,10 @@ namespace LearnToSpin
             if (director == null || !director.ShopOpen) return;
             var kb = Keyboard.current;
             if (kb != null && (kb.spaceKey.wasPressedThisFrame || kb.enterKey.wasPressedThisFrame))
+            {
+                AudioManager.Instance?.PlayBtnClick();
                 director.StartNextRun();
+            }
         }
 
         void OnGUI()
@@ -118,7 +121,10 @@ namespace LearnToSpin
             var prev = GUI.backgroundColor;
             GUI.backgroundColor = new Color(0.2f, 0.7f, 0.3f);
             if (GUI.Button(launchRect, "▶  LAUNCH   (Space / Enter)", _btn))
+            {
+                AudioManager.Instance?.PlayBtnClick();
                 director.StartNextRun();
+            }
             GUI.backgroundColor = prev;
 
             HudScale.End();
@@ -202,7 +208,10 @@ namespace LearnToSpin
             GUI.backgroundColor = afford ? new Color(0.25f, 0.55f, 0.85f) : new Color(0.4f, 0.4f, 0.4f);
             GUI.enabled = afford;
             if (GUI.Button(btnRect, $"Upgrade  —  ${cost:N0}", _btn))
+            {
+                AudioManager.Instance?.PlayBtnClick();
                 director.TryBuyUpgrade(track, tire);
+            }
             GUI.enabled = true;
             GUI.backgroundColor = prev;
         }
@@ -271,13 +280,21 @@ namespace LearnToSpin
             else if (owned)
             {
                 GUI.backgroundColor = new Color(0.25f, 0.55f, 0.85f);
-                if (GUI.Button(actRect, "Equip", _btnSmall)) director.EquipTire(i);
+                if (GUI.Button(actRect, "Equip", _btnSmall))
+                {
+                    AudioManager.Instance?.PlayBtnClick();
+                    director.EquipTire(i);
+                }
             }
             else
             {
                 GUI.backgroundColor = afford ? new Color(0.2f, 0.6f, 0.3f) : new Color(0.45f, 0.4f, 0.4f);
                 GUI.enabled = afford;
-                if (GUI.Button(actRect, $"${def.price:N0}", _btnSmall)) director.TryBuyTire(i);
+                if (GUI.Button(actRect, $"${def.price:N0}", _btnSmall))
+                {
+                    AudioManager.Instance?.PlayBtnClick();
+                    director.TryBuyTire(i);
+                }
                 GUI.enabled = true;
             }
             GUI.backgroundColor = prev;

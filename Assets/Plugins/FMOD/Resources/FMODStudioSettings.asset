@@ -476,8 +476,7 @@ MonoBehaviour:
   VirtualChannelSettings: []
   RealChannelSettings: []
   Plugins: []
-  MasterBanks:
-  - Master
+  MasterBanks: []
   Banks: []
   BanksToLoad: []
   LiveUpdatePort: 9264
@@ -491,21 +490,21 @@ MonoBehaviour:
   SharedLibraryUpdateStage: 0
   SharedLibraryTimeSinceStart: 0
   CurrentVersion: 131860
-  HideSetupWizard: 1
+  HideSetupWizard: 0
   LastEventReferenceScanVersion: 131860
   Platforms:
-  - {fileID: -4800674728346955603}
-  - {fileID: 8861566070266532926}
-  - {fileID: -5252114303438783976}
-  - {fileID: 3664238205237956910}
-  - {fileID: 2767517653255095375}
-  - {fileID: -1516651623926641087}
-  - {fileID: 3779705207198936010}
-  - {fileID: 5607173563601584653}
-  - {fileID: 4523899248939519691}
-  - {fileID: -3868626235818727314}
-  - {fileID: -8027458667278499883}
   - {fileID: -8627086861957826234}
+  - {fileID: -8027458667278499883}
+  - {fileID: -5252114303438783976}
+  - {fileID: -4800674728346955603}
+  - {fileID: -3868626235818727314}
+  - {fileID: -1516651623926641087}
+  - {fileID: 2767517653255095375}
+  - {fileID: 3664238205237956910}
+  - {fileID: 3779705207198936010}
+  - {fileID: 4523899248939519691}
+  - {fileID: 5607173563601584653}
+  - {fileID: 8861566070266532926}
   MigratedPlatforms: 060000000a0000000000000015000000050000000b0000000900000012000000080000000c0000000200000001000000
 --- !u!114 &2767517653255095375
 MonoBehaviour:
@@ -942,16 +941,16 @@ MonoBehaviour:
     HasValue: 0
   displaySortOrder: 0
   childIdentifiers:
-  - 2fea114e74ecf3c4f920e1d5cc1c4c40
-  - 2c5177b11d81d824dbb064f9ac8527da
-  - e7a046c753c3c3d4aacc91f6597f310d
-  - 52eb9df5db46521439908db3a29a1bbb
-  - 0f8eb3f400726694eb47beb1a9f94ce8
-  - fd7c55dab0fce234b8c25f6ffca523c1
-  - 46fbfdf3fc43db0458918377fd40293e
-  - de700ef3f37a49b58a57ae3addf01ad9
-  - b7716510a1f36934c87976f3a81dbf3d
   - c88d16e5272a4e241b0ef0ac2e53b73d
+  - b7716510a1f36934c87976f3a81dbf3d
+  - 2fea114e74ecf3c4f920e1d5cc1c4c40
+  - de700ef3f37a49b58a57ae3addf01ad9
+  - 52eb9df5db46521439908db3a29a1bbb
+  - e7a046c753c3c3d4aacc91f6597f310d
+  - 2c5177b11d81d824dbb064f9ac8527da
+  - 0f8eb3f400726694eb47beb1a9f94ce8
+  - 46fbfdf3fc43db0458918377fd40293e
+  - fd7c55dab0fce234b8c25f6ffca523c1
   codecChannels:
     Value: []
     HasValue: 0

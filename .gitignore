@@ -239,8 +239,10 @@ x86/
 # Built Visual Studio Code Extensions
 *.vsix
 
-# Never ignore DLLs in the FMOD subfolder.
-!/[Aa]ssets/Plugins/FMOD/**/lib/*
+# Never ignore DLLs in the FMOD subfolder. Use /** (not /*) so the native libs nested
+# in per-architecture subfolders (lib/x86_64, lib/x86, lib/arm64) are tracked too — a bare
+# lib/* only un-ignores files directly in lib/ and silently drops the Windows DLLs.
+!/[Aa]ssets/Plugins/FMOD/**/lib/**
 
 # Don't ignore images and gizmos used by FMOD in the Unity Editor.
 !/[Aa]ssets/Gizmos/FMOD/*
