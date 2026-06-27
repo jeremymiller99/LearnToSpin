@@ -34,6 +34,7 @@ namespace LearnToSpin
         public EventReference launchPerfectRef;
         public EventReference tireRevRef;
         public EventReference tireLaunchRef;
+        public EventReference tireImpactRef;
 
         [Header("Music")]
         public EventReference musicRef;
@@ -148,6 +149,7 @@ namespace LearnToSpin
         public void PlayLand(Vector3 position = default) => RuntimeManager.PlayOneShot(landRef, position);
         public void PlayLaunchPerfect() => RuntimeManager.PlayOneShot(launchPerfectRef);
         public void PlayTireLaunch() => RuntimeManager.PlayOneShot(tireLaunchRef);
+        public void PlayTireImpact() => RuntimeManager.PlayOneShot(tireImpactRef);
         
         public void PlayBtnHover() => RuntimeManager.PlayOneShot(btnHoverRef);
         public void PlayBtnClick() => RuntimeManager.PlayOneShot(btnClickRef);
