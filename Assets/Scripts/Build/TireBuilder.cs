@@ -40,6 +40,10 @@ namespace LearnToSpin
             rb.mass = mass;
             rb.linearDamping = 0.02f;
             rb.angularDamping = 0.04f;
+            // Dynamic (not Speculative): speculative mode resolves contacts BEFORE the tire actually
+            // touches, so landings register in mid-air — the trick lands, then the tire visibly drops
+            // to the real ground. Dynamic keeps solid landings crisp; the per-step travel (~0.6 m at
+            // 30 m/s, 0.02s) is far smaller than the hazard trigger boxes, so hazards aren't tunneled.
             rb.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
             rb.interpolation = RigidbodyInterpolation.Interpolate;
             // Keep it upright (no tip/yaw) but free to steer left/right and move forward.

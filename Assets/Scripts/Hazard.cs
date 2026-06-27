@@ -25,6 +25,11 @@ namespace LearnToSpin
             if (_spent) return;
             var rb = other.attachedRigidbody;
             if (rb == null) return;
+            // Only the tire trips a hazard. Without this, the kinematic-rigidbody ground plane that
+            // WorldStreamer teleports under the tire every frame sweeps into these triggers and fires
+            // phantom hits (sound + FX away from the tire) AND spends hazards before the tire reaches
+            // them — so the real hit then does nothing.
+            if (rb.GetComponent<TireLauncher>() == null) return;
 
             _spent = true;
 
@@ -44,10 +49,7 @@ namespace LearnToSpin
             // Tint the dust from this hazard's colour when it has one, else a dusty tan.
             var mr = GetComponent<MeshRenderer>();
             Color dust = mr != null ? mr.material.color : new Color(0.8f, 0.72f, 0.55f);
-            HazardHitFX.Play(hit, strength, dust);
-
-            if (AudioManager.Instance != null)
-                AudioManager.Instance.PlayTireImpact(hit);
+            HazardHitFX.Play(hit, strength, dust); // plays the dust/spark burst AND the impact SFX together
 
             // grey it out as spent feedback
             if (mr != null) mr.material.color = new Color(0.35f, 0.35f, 0.35f);

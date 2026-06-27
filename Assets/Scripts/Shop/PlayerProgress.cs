@@ -37,6 +37,18 @@ namespace LearnToSpin
 
         public int day = 1; // current day; advances by 1 each time a new run is launched from the shop
 
+        // ---- Win-condition objectives (see Objectives.cs) ------------------------------------
+        // Lifetime bests across EVERY run of this profile. Objective tiers clear against these (not
+        // a single run), so a goal once hit stays hit. `won`/`winDay` record the victory — the day
+        // the final tier of the last stat was cleared. All default to 0/false on pre-objective saves.
+        public float bestDistance, bestTopSpeed, bestHeight, bestAirTime;
+        public bool won;
+        public int winDay;
+
+        // True once the player has watched the intro cutscene on this profile, so it only plays the
+        // first time the Game scene is entered for a save (defaults false → plays for old saves too).
+        public bool introSeen;
+
         // ---- Profiles -------------------------------------------------------------------------
         // There are SlotCount independent save profiles. Each is stored under its own PlayerPrefs
         // key (KeyForSlot); the menu picks which one is "active" before loading the Game scene, and
@@ -172,6 +184,18 @@ namespace LearnToSpin
             var dst = new int[n];
             if (src != null) Array.Copy(src, dst, Mathf.Min(src.Length, n));
             return dst;
+        }
+
+        /// <summary>Fold one run's stats into the lifetime bests (used for objective completion).
+        /// Returns true if any best improved this run.</summary>
+        public bool RecordBests(float distance, float topSpeed, float height, float airTime)
+        {
+            bool changed = false;
+            if (distance > bestDistance) { bestDistance = distance; changed = true; }
+            if (topSpeed > bestTopSpeed) { bestTopSpeed = topSpeed; changed = true; }
+            if (height   > bestHeight)   { bestHeight   = height;   changed = true; }
+            if (airTime  > bestAirTime)  { bestAirTime  = airTime;  changed = true; }
+            return changed;
         }
 
         public bool Owns(int index) => owned != null && index >= 0 && index < owned.Length && owned[index];

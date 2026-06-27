@@ -30,13 +30,16 @@ namespace LearnToSpin
         {
             if (_title != null) return;
             _white = Texture2D.whiteTexture;
-            _title = new GUIStyle(GUI.skin.label) { fontSize = 34, fontStyle = FontStyle.Bold };
+            // clipping = Overflow on every label style: in a build the default font renders a touch
+            // larger than in the editor, so glyph descenders were getting clipped by tight label
+            // rects. Overflow lets the text spill past the rect instead of being cut off.
+            _title = new GUIStyle(GUI.skin.label) { fontSize = 34, fontStyle = FontStyle.Bold, clipping = TextClipping.Overflow };
             _money = new GUIStyle(GUI.skin.label)
-            { fontSize = 28, fontStyle = FontStyle.Bold, alignment = TextAnchor.MiddleRight };
-            _h = new GUIStyle(GUI.skin.label) { fontSize = 18, fontStyle = FontStyle.Bold };
-            _body = new GUIStyle(GUI.skin.label) { fontSize = 15 };
-            _small = new GUIStyle(GUI.skin.label) { fontSize = 12, wordWrap = true };
-            _summary = new GUIStyle(GUI.skin.label) { fontSize = 16 };
+            { fontSize = 28, fontStyle = FontStyle.Bold, alignment = TextAnchor.MiddleRight, clipping = TextClipping.Overflow };
+            _h = new GUIStyle(GUI.skin.label) { fontSize = 18, fontStyle = FontStyle.Bold, clipping = TextClipping.Overflow };
+            _body = new GUIStyle(GUI.skin.label) { fontSize = 15, clipping = TextClipping.Overflow };
+            _small = new GUIStyle(GUI.skin.label) { fontSize = 12, wordWrap = true, clipping = TextClipping.Overflow };
+            _summary = new GUIStyle(GUI.skin.label) { fontSize = 16, clipping = TextClipping.Overflow };
             _btn = new GUIStyle(GUI.skin.button) { fontSize = 15, fontStyle = FontStyle.Bold };
             _btnSmall = new GUIStyle(GUI.skin.button) { fontSize = 12, fontStyle = FontStyle.Bold };
         }
@@ -59,7 +62,7 @@ namespace LearnToSpin
 
         void Update()
         {
-            if (director == null || !director.ShopOpen) return;
+            if (director == null || !director.ShopOpen || director.GoalsOpen) return;
             var kb = Keyboard.current;
             if (kb != null && (kb.spaceKey.wasPressedThisFrame || kb.enterKey.wasPressedThisFrame))
             {
@@ -71,6 +74,9 @@ namespace LearnToSpin
         void OnGUI()
         {
             if (director == null || !director.ShopOpen) { _selected = -1; return; }
+            // While the objectives panel is up it owns the screen — skip drawing the shop entirely so
+            // its controls can't catch clicks meant for the modal on top (GoalsUI).
+            if (director.GoalsOpen) return;
             EnsureStyles();
             HudScale.Begin();
 
@@ -133,14 +139,41 @@ namespace LearnToSpin
         float DrawRunSummary(float x, float y, float w)
         {
             var s = director.LastRun;
-            var box = new Rect(x, y, w, 34f);
-            Fill(box, new Color(1f, 1f, 1f, 0.05f));
+            float btnW = 168f;
+            float sumW = w - btnW - 10f;
+            Fill(new Rect(x, y, sumW, 34f), new Color(1f, 1f, 1f, 0.05f));
             string text = s.valid
                 ? $"Last run:   {s.distance:0} m   ·   top {s.topSpeed:0.0} m/s   ·   peak {s.maxHeight:0.0} m      "
                   + $"→   earned  ${s.earned:N0}"
                 : "Buy upgrades and a tire, then launch.";
-            GUI.Label(new Rect(x + 10f, y, w - 20f, 34f), text, _summary);
-            return y + 34f;
+            GUI.Label(new Rect(x + 10f, y, sumW - 20f, 34f), text, _summary);
+
+            // OBJECTIVES toggle — opens the goals panel; shows running tier count.
+            int done = Objectives.TotalDone(director.Progress);
+            var prev = GUI.backgroundColor;
+            GUI.backgroundColor = new Color(0.5f, 0.42f, 0.8f);
+            if (GUI.Button(new Rect(x + w - btnW, y, btnW, 34f),
+                           $"★ OBJECTIVES  {done}/{Objectives.TotalTiers}", _btnSmall))
+            {
+                AudioManager.Instance?.PlayBtnClick();
+                director.ToggleGoals();
+            }
+            GUI.backgroundColor = prev;
+
+            float ny = y + 34f;
+
+            // Banner for any objective tiers cleared by the run that just ended.
+            if (s.valid && s.newObjectives != null && s.newObjectives.Length > 0)
+            {
+                var nb = new Rect(x, ny + 4f, w, 24f);
+                Fill(nb, new Color(1f, 0.8f, 0.2f, 0.13f));
+                GUI.Label(new Rect(x + 10f, ny + 4f, w - 20f, 24f),
+                          "★ Objective complete:   " + string.Join("    ·    ", s.newObjectives),
+                          new GUIStyle(_summary) { fontStyle = FontStyle.Bold,
+                                                   normal = { textColor = new Color(1f, 0.85f, 0.4f) } });
+                ny += 30f;
+            }
+            return ny;
         }
 
         void DrawUpgrades(float x, float y, float w, float h)

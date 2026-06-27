@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 using FMODUnity;
 using FMOD.Studio;
 
@@ -61,6 +62,15 @@ namespace LearnToSpin
         private float _musicVolume  = 1f;
         private float _sfxVolume    = 1f;
 
+        // ---- Music start gating (WebGL autoplay) ----
+        // Browsers refuse to play audio until the first user gesture, so on WebGL we DON'T start the
+        // looping music at scene load (it would be kicked into a suspended audio context and stay
+        // silent for the whole session). Instead we hold it until the first click/keypress. SFX are
+        // unaffected — they only ever fire in response to input, by which point audio is unlocked.
+        private bool _musicStarted;
+        private bool _awaitingGesture;
+        private int  _pendingMusicMode = 1;
+
         public float MasterVolume => _masterVolume;
         public float MusicVolume  => _musicVolume;
         public float SFXVolume    => _sfxVolume;
@@ -79,8 +89,18 @@ namespace LearnToSpin
             }
         }
 
-        private void Start()
+        private System.Collections.IEnumerator Start()
         {
+            // On WebGL the banks load ASYNCHRONOUSLY (web requests), so this Start can run BEFORE the
+            // Master bank is in memory. GetVCA / CreateInstance against an unloaded bank silently
+            // return invalid handles — and because the looping instances (music, rev, rolling, …) are
+            // created here exactly once, they then stay silent forever, while one-shots survive only
+            // because PlayOneShot fires later once the bank is up. (As the bank grew with more audio,
+            // this load lost its race with Start, which is why it "suddenly" broke with no code change.)
+            // Wait for the Master bank — which holds every event and VCA — before touching any of it.
+            while (!RuntimeManager.HaveMasterBanksLoaded)
+                yield return null;
+
             // 1. Initialize the VCAs by passing their exact FMOD paths
             _masterVCA = RuntimeManager.GetVCA("vca:/MasterVCA");
             _musicVCA = RuntimeManager.GetVCA("vca:/MusicVCA");
@@ -99,10 +119,50 @@ namespace LearnToSpin
             _moneyChangeInst = RuntimeManager.CreateInstance(moneyChangeRef);
             _tireRevInst = RuntimeManager.CreateInstance(tireRevRef);
             
-            // 3. Start the music
+            // 3. Create the music instance. On WebGL, hold the actual start() until the first user
+            //    gesture (see _awaitingGesture / Update) so it doesn't begin in a suspended, silent
+            //    audio context. Everywhere else (editor, desktop) start it right away as before.
             _musicInst = RuntimeManager.CreateInstance(musicRef);
+#if UNITY_WEBGL && !UNITY_EDITOR
+            _awaitingGesture = true;
+#else
+            StartMusic();
+#endif
+        }
+
+        /// <summary>Actually start the looping music instance and apply the latest requested mode.
+        /// Called immediately on desktop/editor, or on the first user input on WebGL.</summary>
+        private void StartMusic()
+        {
+            if (_musicStarted) return;
             _musicInst.start();
-            SetMusicMode(1); 
+            _musicInst.setParameterByName("music_mode", _pendingMusicMode);
+            _musicStarted = true;
+        }
+
+        private void Update()
+        {
+            // WebGL: start the held music on the first click/tap/key. Also nudge the mixer to resume
+            // in case the browser's audio context is still suspended at that instant (harmless if it's
+            // already running). No-op on every other platform.
+            if (!_awaitingGesture) return;
+            if (FirstUserGesture())
+            {
+                _awaitingGesture = false;
+                RuntimeManager.CoreSystem.mixerResume();
+                StartMusic();
+            }
+        }
+
+        private static bool FirstUserGesture()
+        {
+            var m = Mouse.current;
+            if (m != null && m.leftButton.wasPressedThisFrame) return true;
+            var k = Keyboard.current;
+            if (k != null && k.anyKey.wasPressedThisFrame) return true;
+            var t = Touchscreen.current;
+            if (t != null && t.primaryTouch.press.wasPressedThisFrame) return true;
+            return false;
         }
 
         // ====================================================================================
@@ -247,7 +307,10 @@ namespace LearnToSpin
 
         public void SetMusicMode(int mode)
         {
-            _musicInst.setParameterByName("music_mode", mode);
+            // Remember the request so the right mode is applied if the music hasn't started yet
+            // (WebGL holds the start until the first gesture); apply live once it's running.
+            _pendingMusicMode = mode;
+            if (_musicStarted) _musicInst.setParameterByName("music_mode", mode);
         }
     }
 }

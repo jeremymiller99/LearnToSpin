@@ -30,6 +30,11 @@ namespace LearnToSpin
             BuildDust(root.transform, strength, dustTint);
             BuildSparks(root.transform, strength);
 
+            // The impact SFX is part of the burst, emitted here (the single hit-feedback call site)
+            // so the sound can NEVER play without the matching particles, or vice-versa. Positioned
+            // with the FX so it reads from where the tire clipped the hazard.
+            if (AudioManager.Instance != null) AudioManager.Instance.PlayTireImpact(position);
+
             // Outlive the longest particle (dust life + sparks' gravity fall) before cleanup.
             Object.Destroy(root, life + 0.6f);
         }

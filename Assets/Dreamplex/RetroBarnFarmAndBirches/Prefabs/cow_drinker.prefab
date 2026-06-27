@@ -9,6 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2351839601652095029}
+  - component: {fileID: 8406101565099824646}
   m_Layer: 0
   m_Name: cow_drinker
   m_TagString: Untagged
@@ -32,6 +33,27 @@ Transform:
   - {fileID: 340084938528454707}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!65 &8406101565099824646
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4631297188193615837}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 0.62, y: 0.52, z: 1.46}
+  m_Center: {x: 0, y: 0.3, z: 0}
 --- !u!1001 &230387330124324824
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -88,7 +110,8 @@ PrefabInstance:
       propertyPath: m_Name
       value: cow_drinker
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 3451118302482216456, guid: 695dc49ce14b8ee42a1f9fd617fdc65b, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []

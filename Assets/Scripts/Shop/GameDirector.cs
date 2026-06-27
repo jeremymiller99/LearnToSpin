@@ -14,6 +14,7 @@ namespace LearnToSpin
         public int moneyBefore;
         public float earnMultiplier;  // the equipped tire's payout multiplier this run (1 = stock)
         public string tireName;       // equipped tire, for the results-screen earnings badge
+        public string[] newObjectives; // objective tiers newly cleared by THIS run (for a results/shop banner)
         public bool valid;
     }
 
@@ -32,13 +33,24 @@ namespace LearnToSpin
         public bool ShopOpen { get; private set; }
         public bool TransitionOpen => _dayTransition != null && _dayTransition.Active;
 
+        /// <summary>True while the victory screen is up (every objective tier cleared).</summary>
+        public bool WinOpen { get; private set; }
+        /// <summary>True while the objectives panel is layered over the shop.</summary>
+        public bool GoalsOpen { get; private set; }
+        /// <summary>True while the one-time intro cutscene is playing (start of a fresh profile).</summary>
+        public bool IntroOpen { get; private set; }
+
+        // Set on the run that completes the LAST objective, so the win screen fires after the player
+        // has seen that run's results (Continue → win screen instead of straight to the shop).
+        bool _pendingWin;
+
         /// <summary>The live tire launcher for the current run (reassigned each run). Lets the pause
         /// menu freeze gameplay input without holding a stale reference across day rebuilds.</summary>
         public TireLauncher Launcher => _launcher;
 
         /// <summary>True only during active flying — i.e. no meta screen is up. The pause menu uses
         /// this so it can't open on top of the results/shop/transition screens.</summary>
-        public bool InActiveRun => !ResultsOpen && !ShopOpen && !TransitionOpen;
+        public bool InActiveRun => !ResultsOpen && !ShopOpen && !TransitionOpen && !WinOpen && !IntroOpen;
 
         GameBootstrap _boot;
         GameObject _tire;
@@ -83,10 +95,47 @@ namespace LearnToSpin
             _dayTransition = new GameObject("DayTransitionUI").AddComponent<DayTransitionUI>();
             _dayTransition.director = this;
 
+            // Objectives panel (layered over the shop) + the victory screen.
+            var goals = new GameObject("GoalsUI").AddComponent<GoalsUI>();
+            goals.director = this;
+
+            // Live top-right objectives tracker (hidden on the meta screens).
+            var objHud = new GameObject("ObjectivesHudUI").AddComponent<ObjectivesHudUI>();
+            objHud.director = this;
+
+            var win = new GameObject("WinUI").AddComponent<WinUI>();
+            win.director = this;
+
             // Esc pause overlay (Resume / Main Menu / Quit).
             var pause = new GameObject("PauseMenuUI").AddComponent<PauseMenuUI>();
             pause.director = this;
 
+            // One-time intro cutscene (comic-strip story) before the first launch of a fresh profile.
+            // It freezes input and hides the run HUD while it plays; EndIntro hands control back.
+            var intro = new GameObject("IntroCutsceneUI").AddComponent<IntroCutsceneUI>();
+            intro.director = this;
+            if (!Progress.introSeen) BeginIntro(intro);
+            else if (AudioManager.Instance != null) AudioManager.Instance.SetMusicMode(1);
+        }
+
+        /// <summary>Start the one-time intro cutscene: freeze the launcher and run the menu music
+        /// bed under it. <see cref="EndIntro"/> tears it back down when the player finishes/skips.</summary>
+        void BeginIntro(IntroCutsceneUI intro)
+        {
+            IntroOpen = true;
+            if (_launcher != null) _launcher.enabled = false; // no revving until the story is over
+            if (AudioManager.Instance != null) AudioManager.Instance.SetMusicMode(0);
+            intro.Play();
+        }
+
+        /// <summary>Intro cutscene finished (or was skipped): mark it seen, restore gameplay music,
+        /// and hand control back to the player for their first launch.</summary>
+        public void EndIntro()
+        {
+            IntroOpen = false;
+            Progress.introSeen = true;
+            Progress.Save();
+            if (_launcher != null) _launcher.enabled = true;
             if (AudioManager.Instance != null) AudioManager.Instance.SetMusicMode(1);
         }
 
@@ -115,6 +164,26 @@ namespace LearnToSpin
             int earned = dM + sM + hM + aM;
             int before = Progress.money;
 
+            // ---- Objectives: fold this run into the lifetime bests, diff for newly-cleared tiers,
+            // and detect the win (every tier of every stat now complete). ----
+            bool[,] doneBefore = new bool[Objectives.StatCount, Objectives.TierCount];
+            for (int st = 0; st < Objectives.StatCount; st++)
+                for (int ti = 0; ti < Objectives.TierCount; ti++)
+                    doneBefore[st, ti] = Objectives.TierDone(Progress, st, ti);
+
+            Progress.RecordBests(_launcher.Distance, _launcher.TopSpeed,
+                                 _launcher.MaxHeight, _launcher.LongestAirTime);
+
+            var newly = new System.Collections.Generic.List<string>();
+            for (int st = 0; st < Objectives.StatCount; st++)
+                for (int ti = 0; ti < Objectives.TierCount; ti++)
+                    if (!doneBefore[st, ti] && Objectives.TierDone(Progress, st, ti))
+                        newly.Add(Objectives.Label(st, ti));
+
+            bool justWon = !Progress.won && Objectives.AllComplete(Progress);
+            if (justWon) { Progress.won = true; Progress.winDay = Progress.day; }
+            _pendingWin = justWon;
+
             LastRun = new RunSummary
             {
                 distance = _launcher.Distance,
@@ -129,10 +198,11 @@ namespace LearnToSpin
                 moneyBefore = before,
                 earnMultiplier = em,
                 tireName = def.displayName,
+                newObjectives = newly.ToArray(),
                 valid = true,
             };
-            // Bank + save now so the payout survives even if the player quits mid-animation; the
-            // results screen counts the wallet up from moneyBefore to the new total for show.
+            // Bank + save now so the payout (and any objective/win progress) survives even if the
+            // player quits mid-animation; the results screen counts the wallet up for show.
             Progress.money += earned;
             Progress.Save();
             OpenResults();
@@ -148,12 +218,25 @@ namespace LearnToSpin
             if (AudioManager.Instance != null) AudioManager.Instance.SetMusicMode(0);
         }
 
-        /// <summary>Results screen "Continue": hand off to the shop.</summary>
+        /// <summary>Results screen "Continue": go to the win screen if this run completed the final
+        /// objective, otherwise hand off to the shop.</summary>
         public void ContinueToShop()
         {
             ResultsOpen = false;
+            if (_pendingWin) { _pendingWin = false; WinOpen = true; return; }
             ShopOpen = true;
         }
+
+        /// <summary>Win screen "Keep Playing": drop into the shop and carry on (free play after the win).</summary>
+        public void DismissWin()
+        {
+            WinOpen = false;
+            ShopOpen = true;
+        }
+
+        /// <summary>Toggle the objectives panel over the shop (the shop's OBJECTIVES button).</summary>
+        public void ToggleGoals() => GoalsOpen = !GoalsOpen;
+        public void CloseGoals() => GoalsOpen = false;
 
         /// <summary>
         /// Shop "Launch" button: advance the day and start the next run. The actual tire rebuild is
@@ -165,6 +248,7 @@ namespace LearnToSpin
             if (TransitionOpen) return; // already mid-fade — ignore double presses
             ResultsOpen = false;
             ShopOpen = false;
+            GoalsOpen = false;
 
             Progress.day++;
             Progress.Save();

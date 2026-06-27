@@ -30,16 +30,19 @@ namespace LearnToSpin
         void EnsureStyles()
         {
             if (_value != null) return;
-            _value = new GUIStyle(GUI.skin.label) { fontSize = 30, fontStyle = FontStyle.Bold };
-            _label = new GUIStyle(GUI.skin.label) { fontSize = 12, fontStyle = FontStyle.Bold };
-            _name = new GUIStyle(GUI.skin.label) { fontSize = 15, fontStyle = FontStyle.Bold };
-            _mid = new GUIStyle(GUI.skin.label) { fontSize = 18 };
+            // clipping = Overflow on every text style: in a build the default font renders a touch
+            // larger than in the editor, so glyph descenders were getting clipped by these tight
+            // label rects. Overflow lets the text spill past the rect instead of being cut off.
+            _value = new GUIStyle(GUI.skin.label) { fontSize = 30, fontStyle = FontStyle.Bold, clipping = TextClipping.Overflow };
+            _label = new GUIStyle(GUI.skin.label) { fontSize = 12, fontStyle = FontStyle.Bold, clipping = TextClipping.Overflow };
+            _name = new GUIStyle(GUI.skin.label) { fontSize = 15, fontStyle = FontStyle.Bold, clipping = TextClipping.Overflow };
+            _mid = new GUIStyle(GUI.skin.label) { fontSize = 18, clipping = TextClipping.Overflow };
             _perfect = new GUIStyle(GUI.skin.label)
-            { fontSize = 40, fontStyle = FontStyle.Bold, alignment = TextAnchor.MiddleCenter };
+            { fontSize = 40, fontStyle = FontStyle.Bold, alignment = TextAnchor.MiddleCenter, clipping = TextClipping.Overflow };
             _hint = new GUIStyle(GUI.skin.label)
-            { fontSize = 13, alignment = TextAnchor.UpperRight };
+            { fontSize = 13, alignment = TextAnchor.UpperRight, clipping = TextClipping.Overflow };
             _badge = new GUIStyle(GUI.skin.label)
-            { fontSize = 12, fontStyle = FontStyle.Bold, alignment = TextAnchor.MiddleRight };
+            { fontSize = 12, fontStyle = FontStyle.Bold, alignment = TextAnchor.MiddleRight, clipping = TextClipping.Overflow };
             _white = Texture2D.whiteTexture;
         }
 
@@ -55,7 +58,7 @@ namespace LearnToSpin
             if (launcher == null) return;
             // While the meta screens are up (results → shop → day transition) the player isn't flying,
             // so the live DISTANCE/SPEED/HEIGHT HUD is just stale clutter behind the panels — hide it.
-            if (director != null && (director.ShopOpen || director.ResultsOpen || director.TransitionOpen))
+            if (director != null && (director.ShopOpen || director.ResultsOpen || director.TransitionOpen || director.IntroOpen))
                 return;
             EnsureStyles();
             HudScale.Begin();
@@ -207,7 +210,12 @@ namespace LearnToSpin
             };
             var style = new GUIStyle(_mid) { alignment = TextAnchor.MiddleCenter };
             style.normal.textColor = new Color(1f, 1f, 1f, 0.9f);
-            GUI.Label(new Rect(0, HudScale.VH - 104f, HudScale.VW, 24f), msg, style);
+            // While launched the active bar is the low boost meter (VH-38), so sit the prompt right
+            // above it; other states show the rev meter higher up (VH-70), so keep the prompt above that.
+            float stateY = launcher.CurrentState == TireLauncher.State.Launched
+                ? HudScale.VH - 64f
+                : HudScale.VH - 98f;
+            GUI.Label(new Rect(0, stateY, HudScale.VW, 24f), msg, style);
         }
 
         // ---- Theme flourishes ----

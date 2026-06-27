@@ -39,17 +39,31 @@ namespace LearnToSpin
                                       Sit.Base, parent, stripColliders: true);
             go.name = $"Hazard_{z:0}m";
 
-            // A generous trigger box over the footprint — non-solid so it never hard-stops
-            // the player, just bleeds speed/spin (see Hazard). Sized from the final bounds.
+            // A trigger box over the footprint — non-solid so it never hard-stops the player, just
+            // bleeds speed/spin (see Hazard). Sized from the final bounds, but CAPPED and anchored at
+            // the base: a tree's renderer bounds span the whole trunk-to-canopy height and the full
+            // canopy width, and using that raw gave phantom hits — clipping the canopy box while flying
+            // OVER the tree, or the canopy's sideways overhang while driving past in an adjacent lane.
+            // Cap the height so big air clears it, and the footprint so only the trunk-ish base bleeds.
+            const float MaxTriggerHeight = 3f; // fly above this and you clear the hazard
+            const float MaxTriggerWidth = 2.5f; // clamp wide canopies toward the trunk footprint
             Bounds b = BuildUtils.RendererBounds(go);
             Vector3 ls = go.transform.lossyScale;
+
+            float wsx = Mathf.Min(b.size.x, MaxTriggerWidth);
+            float wsz = Mathf.Min(b.size.z, MaxTriggerWidth);
+            float wsy = Mathf.Min(b.size.y, MaxTriggerHeight);
+            // World-space box: keep the prefab's horizontal centre but sit on the ground (b.min.y) so
+            // the capped height covers the base, not a slab floating at the canopy's mid-height.
+            Vector3 worldCenter = new Vector3(b.center.x, b.min.y + wsy * 0.5f, b.center.z);
+
             var bc = go.AddComponent<BoxCollider>();
             bc.isTrigger = true;
-            bc.center = go.transform.InverseTransformPoint(b.center);
+            bc.center = go.transform.InverseTransformPoint(worldCenter);
             bc.size = new Vector3(
-                b.size.x / Mathf.Max(0.0001f, Mathf.Abs(ls.x)),
-                b.size.y / Mathf.Max(0.0001f, Mathf.Abs(ls.y)),
-                b.size.z / Mathf.Max(0.0001f, Mathf.Abs(ls.z)));
+                wsx / Mathf.Max(0.0001f, Mathf.Abs(ls.x)),
+                wsy / Mathf.Max(0.0001f, Mathf.Abs(ls.y)),
+                wsz / Mathf.Max(0.0001f, Mathf.Abs(ls.z)));
 
             var h = go.AddComponent<Hazard>();
             h.keepFactor = Random.Range(0.45f, 0.7f);
