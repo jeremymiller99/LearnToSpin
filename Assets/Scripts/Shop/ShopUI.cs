@@ -116,7 +116,10 @@ namespace LearnToSpin
             var prev = GUI.backgroundColor;
             GUI.backgroundColor = new Color(0.2f, 0.7f, 0.3f);
             if (GUI.Button(launchRect, "▶  LAUNCH   (Space / Enter)", _btn))
+            {
+                if (AudioManager.Instance != null) AudioManager.Instance.PlayBtnClick();
                 director.StartNextRun();
+            }
             GUI.backgroundColor = prev;
         }
 
@@ -198,7 +201,10 @@ namespace LearnToSpin
             GUI.backgroundColor = afford ? new Color(0.25f, 0.55f, 0.85f) : new Color(0.4f, 0.4f, 0.4f);
             GUI.enabled = afford;
             if (GUI.Button(btnRect, $"Upgrade  —  ${cost:N0}", _btn))
+            {
+                if (AudioManager.Instance != null) AudioManager.Instance.PlayBtnClick();
                 director.TryBuyUpgrade(track, tire);
+            }
             GUI.enabled = true;
             GUI.backgroundColor = prev;
         }
@@ -267,7 +273,16 @@ namespace LearnToSpin
             else if (owned)
             {
                 GUI.backgroundColor = new Color(0.25f, 0.55f, 0.85f);
-                if (GUI.Button(actRect, "Equip", _btnSmall)) director.EquipTire(i);
+                if (GUI.Button(actRect, "Equip", _btnSmall)) 
+                {
+                    if (AudioManager.Instance != null) AudioManager.Instance.PlayBtnClick();
+                    director.EquipTire(i);
+                }
+                else if (GUI.Button(actRect, $"${def.price:N0}", _btnSmall))
+                {
+                    if (AudioManager.Instance != null) AudioManager.Instance.PlayBtnClick();
+                    director.TryBuyTire(i);
+                }
             }
             else
             {
@@ -352,7 +367,11 @@ namespace LearnToSpin
             else if (owned)
             {
                 GUI.backgroundColor = new Color(0.25f, 0.55f, 0.85f);
-                if (GUI.Button(btn, "Equip", _btn)) director.EquipTire(idx);
+                if (GUI.Button(btn, "Equip", _btn)) 
+                {
+                    if (AudioManager.Instance != null) AudioManager.Instance.PlayBtnClick();
+                    director.EquipTire(idx);
+                }
             }
             GUI.backgroundColor = prev;
         }

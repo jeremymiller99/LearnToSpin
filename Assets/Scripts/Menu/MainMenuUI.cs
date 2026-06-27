@@ -27,6 +27,15 @@ namespace LearnToSpin
         GUIStyle _title, _heading, _subtitle, _slotName, _slotInfo, _btn, _btnBig, _hint;
         Texture2D _white;
 
+        void Start()
+        {
+            // AUDIO: Main Menu should use music mode 1
+            if (AudioManager.Instance != null)
+            {
+                AudioManager.Instance.SetMusicMode(1);
+            }
+        }
+
         void EnsureStyles()
         {
             if (_title != null) return;
@@ -96,15 +105,27 @@ namespace LearnToSpin
 
             var prev = GUI.backgroundColor;
             GUI.backgroundColor = new Color(0.2f, 0.7f, 0.3f);
-            if (GUI.Button(new Rect(bx, y, bw, btnH), "PLAY", _btnBig)) _screen = Screen.Profiles;
+            if (GUI.Button(new Rect(bx, y, bw, btnH), "PLAY", _btnBig)) 
+            {
+                if (AudioManager.Instance != null) AudioManager.Instance.PlayBtnClick();
+                _screen = Screen.Profiles;
+            }
             y += btnH + btnGap;
 
             GUI.backgroundColor = new Color(0.28f, 0.5f, 0.78f);
-            if (GUI.Button(new Rect(bx, y, bw, btnH), "SETTINGS", _btnBig)) _screen = Screen.Settings;
+            if (GUI.Button(new Rect(bx, y, bw, btnH), "SETTINGS", _btnBig)) 
+            {
+                if (AudioManager.Instance != null) AudioManager.Instance.PlayBtnClick();
+                _screen = Screen.Settings;
+            }
             y += btnH + btnGap;
 
             GUI.backgroundColor = new Color(0.35f, 0.38f, 0.45f);
-            if (GUI.Button(new Rect(bx, y, bw, btnH), "QUIT", _btnBig)) Quit();
+            if (GUI.Button(new Rect(bx, y, bw, btnH), "QUIT", _btnBig)) 
+            {
+                if (AudioManager.Instance != null) AudioManager.Instance.PlayBtnClick();
+                Quit();
+            }
             GUI.backgroundColor = prev;
         }
 
@@ -127,7 +148,12 @@ namespace LearnToSpin
             }
 
             y += backGap;
-            if (GUI.Button(new Rect(x, y, w, backH), "Back", _btn)) { _screen = Screen.Title; _confirmDelete = -1; }
+            if (GUI.Button(new Rect(x, y, w, backH), "Back", _btn)) 
+            { 
+                if (AudioManager.Instance != null) AudioManager.Instance.PlayBtnClick();
+                _screen = Screen.Title; 
+                _confirmDelete = -1; 
+            }
         }
 
         void DrawSlot(int slot, Rect r)
@@ -150,20 +176,24 @@ namespace LearnToSpin
             float right = r.xMax - pad;
             var prev = GUI.backgroundColor;
 
-            // Delete (only for occupied slots) sits to the left of the primary action.
+            // The initial 'Delete' button next to a save slot
             if (sum.exists)
             {
                 float dw = 92f;
                 GUI.backgroundColor = new Color(0.7f, 0.25f, 0.25f);
                 if (GUI.Button(new Rect(right - 150f - bgap - dw, by, dw, bh), "Delete", _btn))
+                {
+                    if (AudioManager.Instance != null) AudioManager.Instance.PlayBtnClick();
                     _confirmDelete = slot;
+                }
             }
 
-            // Primary action: continue an existing profile, or start a new one in this slot.
+            // Primary action: continue an existing profile, or start a new one
             float cw = 150f;
             GUI.backgroundColor = new Color(0.2f, 0.7f, 0.3f);
             if (GUI.Button(new Rect(right - cw, by, cw, bh), sum.exists ? "Continue" : "New Game", _btnBig))
             {
+                if (AudioManager.Instance != null) AudioManager.Instance.PlayBtnClick();
                 if (sum.exists) PlayerProgress.ActiveSlot = slot;
                 else PlayerProgress.CreateNewProfile(slot);
                 LoadGame();
@@ -185,12 +215,16 @@ namespace LearnToSpin
             GUI.backgroundColor = new Color(0.7f, 0.25f, 0.25f);
             if (GUI.Button(new Rect(right - bw, by, bw, bh), "Delete", _btn))
             {
+                if (AudioManager.Instance != null) AudioManager.Instance.PlayBtnClick();
                 PlayerProgress.DeleteSlot(slot);
                 _confirmDelete = -1;
             }
             GUI.backgroundColor = new Color(0.35f, 0.38f, 0.45f);
             if (GUI.Button(new Rect(right - bw - bgap - bw, by, bw, bh), "Cancel", _btn))
+            {
+                if (AudioManager.Instance != null) AudioManager.Instance.PlayBtnClick();
                 _confirmDelete = -1;
+            }
             GUI.backgroundColor = prev;
         }
 
@@ -213,7 +247,11 @@ namespace LearnToSpin
                       "Nothing here yet —\nsettings will live on this screen.", _hint);
             y += boxH + boxGap;
 
-            if (GUI.Button(new Rect(x, y, w, backH), "Back", _btn)) _screen = Screen.Title;
+            if (GUI.Button(new Rect(x, y, w, backH), "Back", _btn)) 
+            {
+                if (AudioManager.Instance != null) AudioManager.Instance.PlayBtnClick();
+                _screen = Screen.Title;
+            }
         }
 
         void LoadGame()

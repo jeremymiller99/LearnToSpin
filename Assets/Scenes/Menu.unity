@@ -129,7 +129,7 @@ GameObject:
   m_Component:
   - component: {fileID: 98511587}
   - component: {fileID: 98511586}
-  - component: {fileID: 98511585}
+  - component: {fileID: 98511588}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -137,14 +137,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!81 &98511585
-AudioListener:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 98511584}
-  m_Enabled: 1
 --- !u!20 &98511586
 Camera:
   m_ObjectHideFlags: 0
@@ -206,6 +198,176 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 1, z: -10}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &98511588
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 98511584}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 86c6556701af9e04380698b89f691b6e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: FMODUnity::FMODUnity.StudioListener
+  nonRigidbodyVelocity: 0
+  attenuationObject: {fileID: 0}
+--- !u!1 &138089701
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 138089703}
+  - component: {fileID: 138089702}
+  m_Layer: 0
+  m_Name: AudioManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &138089702
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 138089701}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 43b364d685d6a8f439f2fa0fd5d7b269, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AudioManager
+  trickNiceRef:
+    Guid:
+      Data1: -528926116
+      Data2: 1215218640
+      Data3: 398401976
+      Data4: 147084817
+    Path: event:/trick_nice
+  trickSickRef:
+    Guid:
+      Data1: 1387649551
+      Data2: 1282616267
+      Data3: -1002241136
+      Data4: 1729885076
+    Path: event:/trick_sick
+  trickInsaneRef:
+    Guid:
+      Data1: -285122146
+      Data2: 1262930489
+      Data3: -1242543176
+      Data4: -183718025
+    Path: event:/trick_insane
+  trickGodlikeRef:
+    Guid:
+      Data1: -926594227
+      Data2: 1338476627
+      Data3: 2107608711
+      Data4: 787363851
+    Path: event:/trick_godlike
+  landRef:
+    Guid:
+      Data1: -2055553258
+      Data2: 1215968117
+      Data3: 1609550492
+      Data4: 1473694218
+    Path: event:/trick_land
+  rollGroundRef:
+    Guid:
+      Data1: 1203887109
+      Data2: 1154327576
+      Data3: -1926692961
+      Data4: -1254280160
+    Path: event:/roll_ground
+  rollWoodRef:
+    Guid:
+      Data1: 920519988
+      Data2: 1179953880
+      Data3: 1130508219
+      Data4: 1681629126
+    Path: event:/roll_wood
+  airWhooshRef:
+    Guid:
+      Data1: 1475043753
+      Data2: 1288190819
+      Data3: 368793226
+      Data4: -1408457015
+    Path: event:/air_whoosh
+  btnHoverRef:
+    Guid:
+      Data1: -706847188
+      Data2: 1196743756
+      Data3: -248487533
+      Data4: 236355121
+    Path: event:/btn_hover
+  btnClickRef:
+    Guid:
+      Data1: -1893904202
+      Data2: 1337000406
+      Data3: 1071914133
+      Data4: -82577313
+    Path: event:/btn_click
+  moneyChangeRef:
+    Guid:
+      Data1: -1503315632
+      Data2: 1220679219
+      Data3: -1042351458
+      Data4: -1974098196
+    Path: event:/money_change
+  moneyStopRef:
+    Guid:
+      Data1: -955724074
+      Data2: 1282780178
+      Data3: -156142198
+      Data4: -1730141906
+    Path: event:/money_stop
+  launchPerfectRef:
+    Guid:
+      Data1: 633699471
+      Data2: 1216855289
+      Data3: -1475609982
+      Data4: -641359228
+    Path: event:/launch_perfect
+  tireRevRef:
+    Guid:
+      Data1: -813368697
+      Data2: 1260080045
+      Data3: -160306778
+      Data4: -337277014
+    Path: event:/tire_rev
+  tireLaunchRef:
+    Guid:
+      Data1: -1193182963
+      Data2: 1331473015
+      Data3: -1304222557
+      Data4: 1517632823
+    Path: event:/tire_launch
+  musicRef:
+    Guid:
+      Data1: 1132875713
+      Data2: 1219285571
+      Data3: -1897674878
+      Data4: 1452611759
+    Path: event:/music
+--- !u!4 &138089703
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 138089701}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -350,8 +512,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 565312439c3b44bdabb3d6d4078d20bb, type: 3}
-  m_Name:
-  m_EditorClassIdentifier:
+  m_Name: 
+  m_EditorClassIdentifier: 
   gameSceneName: Game
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
@@ -360,3 +522,4 @@ SceneRoots:
   - {fileID: 98511587}
   - {fileID: 715410810}
   - {fileID: 1234567001}
+  - {fileID: 138089703}
