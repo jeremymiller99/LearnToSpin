@@ -103,28 +103,31 @@ namespace LearnToSpin
         {
             if (_phase == Phase.Idle) return;
             EnsureStyles();
+            HudScale.Begin();
 
             float curtain = Curtain();
 
             // Black curtain over everything.
             var prev = GUI.color;
             GUI.color = new Color(0f, 0f, 0f, curtain);
-            GUI.DrawTexture(new Rect(0, 0, Screen.width, Screen.height), _white);
+            GUI.DrawTexture(new Rect(0, 0, HudScale.VW, HudScale.VH), _white);
             GUI.color = prev;
 
             // "DAY X" — only legible once the screen is mostly black, so it never bleeds over the
             // world during the early fade-out / late fade-in.
             float textA = Mathf.Clamp01((curtain - 0.55f) / 0.45f);
-            if (textA <= 0.001f) return;
+            if (textA <= 0.001f) { HudScale.End(); return; }
 
-            float cx = Screen.width * 0.5f;
-            float cy = Screen.height * 0.5f;
+            float cx = HudScale.VW * 0.5f;
+            float cy = HudScale.VH * 0.5f;
 
             _dayStyle.normal.textColor = new Color(1f, 0.82f, 0.22f, textA);
             GUI.Label(new Rect(cx - 300f, cy - 70f, 600f, 80f), $"DAY {_day}", _dayStyle);
 
             _sub.normal.textColor = new Color(0.85f, 0.88f, 0.94f, textA * 0.85f);
             GUI.Label(new Rect(cx - 300f, cy + 14f, 600f, 24f), "A fresh launch awaits…", _sub);
+
+            HudScale.End();
         }
     }
 }

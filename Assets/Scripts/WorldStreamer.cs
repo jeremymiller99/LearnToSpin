@@ -28,6 +28,11 @@ namespace LearnToSpin
         Transform _target;
         GameObject _floor;
 
+        // Seed for THIS run's terrain. Combines the world-style seed with the day so every day
+        // streams a brand-new layout, while still being deterministic within a run (recycled
+        // chunks regenerate identically). Set by the GameDirector each time it (re)targets.
+        int _runSeed;
+
         // Cached prefab metrics so every chunk tiles on the same global grid (seamless boundaries).
         float _roadCellZ;
         bool _hasFence;
@@ -38,11 +43,12 @@ namespace LearnToSpin
         readonly List<int> _toRecycle = new();
 
         /// <summary>Wire up the world and build the first window of chunks around the tire.</summary>
-        public void Init(GameBootstrap boot, PhysicsMaterial grip, Transform target)
+        public void Init(GameBootstrap boot, PhysicsMaterial grip, Transform target, int runSeed)
         {
             _boot = boot;
             _grip = grip;
             _target = target;
+            _runSeed = runSeed;
 
             _roadCellZ = GroundBuilder.RoadCellZ(boot);
             _hasFence = DecorBuilder.FenceMetric(boot, out _fenceSegLen, out _fenceRot);
@@ -52,10 +58,12 @@ namespace LearnToSpin
             MoveFloor();
         }
 
-        /// <summary>Point at a freshly rebuilt tire and regenerate the world from its start.</summary>
-        public void Retarget(Transform target)
+        /// <summary>Point at a freshly rebuilt tire and regenerate the world from its start with a
+        /// new layout seed (a new day = a new world).</summary>
+        public void Retarget(Transform target, int runSeed)
         {
             _target = target;
+            _runSeed = runSeed;
             foreach (var c in _chunks.Values)
                 if (c != null) Destroy(c.gameObject);
             _chunks.Clear();
@@ -105,11 +113,11 @@ namespace LearnToSpin
             // Deterministic per-chunk layout: the same chunk index always regenerates identically,
             // even after it's recycled. Restore the global RNG so gameplay randomness is untouched.
             var prevState = Random.state;
-            Random.InitState(_boot.worldSeed * 9176 + i);
+            Random.InitState(_runSeed * 9176 + i);
 
             GroundBuilder.BuildApronSlice(_boot, parent, z0, z1);                      // sand underneath, first
             GroundBuilder.BuildRoadSlice(_boot, _grip, parent, z0, z1, _roadCellZ);    // path on top
-            GroundBuilder.BuildRampSlice(_grip, parent, z0, z1);
+            GroundBuilder.BuildRampSlice(_boot, _grip, parent, z0, z1);
             if (_hasFence) DecorBuilder.BuildFenceSlice(_boot, parent, z0, z1, _fenceSegLen, _fenceRot);
             DecorBuilder.BuildMarkersSlice(_boot, parent, z0, z1);
             HazardBuilder.BuildSlice(_boot, parent, z0, z1);

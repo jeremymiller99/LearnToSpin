@@ -27,11 +27,26 @@ namespace LearnToSpin
             if (rb == null) return;
 
             _spent = true;
+
+            // How hard the hit reads: the faster the tire (and the more this hazard bleeds),
+            // the bigger the burst. Mapped so a ~30 m/s clip is roughly full strength.
+            float speed = rb.linearVelocity.magnitude;
+            float strength = Mathf.Clamp01(speed / 30f) * (1f - keepFactor) * 2f;
+
             rb.linearVelocity *= keepFactor;
             rb.angularVelocity *= keepFactor;
 
-            // grey it out as spent feedback
+            // Burst at the point on the tire nearest this hazard, lifted toward its centre so
+            // the puff reads off the ground rather than buried in it.
+            Vector3 hit = GetComponent<Collider>().ClosestPoint(rb.worldCenterOfMass);
+            hit.y = Mathf.Max(hit.y, 0.5f);
+
+            // Tint the dust from this hazard's colour when it has one, else a dusty tan.
             var mr = GetComponent<MeshRenderer>();
+            Color dust = mr != null ? mr.material.color : new Color(0.8f, 0.72f, 0.55f);
+            HazardHitFX.Play(hit, strength, dust);
+
+            // grey it out as spent feedback
             if (mr != null) mr.material.color = new Color(0.35f, 0.35f, 0.35f);
         }
     }

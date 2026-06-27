@@ -23,116 +23,140 @@ MonoBehaviour:
     baseIdealSpin: 90
     baseMaxSpin: 110
     baseBoostReserve: 100
+    upgradePotency: 1
+    earnMultiplier: 1
   - displayName: Trainer
     prefab: {fileID: 5503701249889811591, guid: 19715278cf387814cb6d41001aa0777b, type: 3}
     icon: {fileID: 2800000, guid: d30ec8a5af08c1c428655ac87d25872a, type: 3}
-    price: 200
+    price: 1000
     mass: 20.5
     radius: 0.5
     bounciness: 0.518
     baseIdealSpin: 96
     baseMaxSpin: 116
     baseBoostReserve: 110
+    upgradePotency: 1.16
+    earnMultiplier: 1.255
   - displayName: Street
     prefab: {fileID: 3570472843685785719, guid: 1f2c3323e4d72084abac4a0e9f21427c, type: 3}
     icon: {fileID: 2800000, guid: 14f2719995391b14ba0249812c63e1c3, type: 3}
-    price: 340
+    price: 2050
     mass: 25
     radius: 0.55
     bounciness: 0.536
     baseIdealSpin: 102
     baseMaxSpin: 122
     baseBoostReserve: 120
+    upgradePotency: 1.32
+    earnMultiplier: 1.58
   - displayName: Rally
     prefab: {fileID: 2797183914310593762, guid: e97b63e4bac122d4da96abd93e196573, type: 3}
     icon: {fileID: 2800000, guid: 5d97593d2a7d1d74392fa24e0a2082e7, type: 3}
-    price: 580
+    price: 4200
     mass: 17.5
     radius: 0.59999996
     bounciness: 0.554
     baseIdealSpin: 108
     baseMaxSpin: 128
     baseBoostReserve: 130
+    upgradePotency: 1.48
+    earnMultiplier: 1.975
   - displayName: Off-Road
     prefab: {fileID: 4147175499008398625, guid: 7529c546b9b31d54db34c19762699051, type: 3}
     icon: {fileID: 2800000, guid: d6a9ae8491fae124596c348838130435, type: 3}
-    price: 980
+    price: 8600
     mass: 22
     radius: 0.45
     bounciness: 0.572
     baseIdealSpin: 114
     baseMaxSpin: 134
     baseBoostReserve: 140
+    upgradePotency: 1.64
+    earnMultiplier: 2.44
   - displayName: Mud Terrain
     prefab: {fileID: 2507273213197266941, guid: c10c5d85dd7b0db458dd9d93a84e6b58, type: 3}
     icon: {fileID: 2800000, guid: edab64ff43f02fe408d0a76ff7759ae7, type: 3}
-    price: 1670
+    price: 17650
     mass: 26.5
     radius: 0.5
     bounciness: 0.59
     baseIdealSpin: 120
     baseMaxSpin: 140
     baseBoostReserve: 150
+    upgradePotency: 1.8
+    earnMultiplier: 2.975
   - displayName: Drag Slick
     prefab: {fileID: 5025580427080268077, guid: 15dba757a5ba3294597cee9b3cd41de6, type: 3}
     icon: {fileID: 2800000, guid: 34e26cfb2dffe3c49989aba2a992d655, type: 3}
-    price: 2840
+    price: 36200
     mass: 19
     radius: 0.55
     bounciness: 0.608
     baseIdealSpin: 126
     baseMaxSpin: 146
     baseBoostReserve: 160
+    upgradePotency: 1.96
+    earnMultiplier: 3.58
   - displayName: Monster
     prefab: {fileID: 6425032315613321369, guid: f4e3e2e5733649b42aab42bd99c914f5, type: 3}
     icon: {fileID: 2800000, guid: d6c66f4dd76d68741992be059ca66cbe, type: 3}
-    price: 4830
+    price: 74200
     mass: 23.5
     radius: 0.59999996
     bounciness: 0.626
     baseIdealSpin: 132
     baseMaxSpin: 152
     baseBoostReserve: 170
+    upgradePotency: 2.12
+    earnMultiplier: 4.255
   - displayName: Industrial
     prefab: {fileID: 8639267618831878603, guid: d346c75fd69b7654bb149bf365bc1c1f, type: 3}
     icon: {fileID: 2800000, guid: 07f44484ce0fe1a4b9de2d0a7f0ccb8f, type: 3}
-    price: 8210
+    price: 152150
     mass: 28
     radius: 0.45
     bounciness: 0.644
     baseIdealSpin: 138
     baseMaxSpin: 158
     baseBoostReserve: 180
+    upgradePotency: 2.28
+    earnMultiplier: 5
   - displayName: Hover
     prefab: {fileID: 8677494116104202446, guid: 07f83523d4bc8b144ad0c76e3e76b8c0, type: 3}
     icon: {fileID: 2800000, guid: 855c68c87799f8b4e95885d8daadb2ee, type: 3}
-    price: 13950
+    price: 311900
     mass: 20.5
     radius: 0.5
     bounciness: 0.662
     baseIdealSpin: 144
     baseMaxSpin: 164
     baseBoostReserve: 190
+    upgradePotency: 2.44
+    earnMultiplier: 5.815
   - displayName: Carbon
     prefab: {fileID: 1688774892404125347, guid: 7a3880425840b374ba8197eebaab4239, type: 3}
     icon: {fileID: 2800000, guid: ca5b35a3843bf9c48a50ccc3dc73fb3b, type: 3}
-    price: 23720
+    price: 639400
     mass: 25
     radius: 0.55
     bounciness: 0.68
     baseIdealSpin: 150
     baseMaxSpin: 170
     baseBoostReserve: 200
+    upgradePotency: 2.6
+    earnMultiplier: 6.7
   - displayName: Plasma
     prefab: {fileID: 4132143957973514598, guid: d0902eed0c71350468db11715bbf405d, type: 3}
     icon: {fileID: 2800000, guid: 28d690d8d1c6c0e41a7526546bcfb01d, type: 3}
-    price: 40320
+    price: 1310800
     mass: 29.5
     radius: 0.59999996
     bounciness: 0.698
     baseIdealSpin: 156
     baseMaxSpin: 176
     baseBoostReserve: 210
+    upgradePotency: 2.76
+    earnMultiplier: 7.655
   boostUpgrade:
     label: Boost Capacity
     perLevel: 25

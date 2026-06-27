@@ -61,15 +61,16 @@ namespace LearnToSpin
         }
 
         // Top of a vertically-centred block of the given height (never above a small top margin).
-        static float TopFor(float blockH) => Mathf.Max(24f, (UnityEngine.Screen.height - blockH) * 0.5f);
+        static float TopFor(float blockH) => Mathf.Max(24f, (HudScale.VH - blockH) * 0.5f);
 
         void OnGUI()
         {
             EnsureStyles();
+            HudScale.Begin();
 
             // Backdrop — a dark wash so the IMGUI reads on any skybox, plus the gold accent bar.
-            Fill(new Rect(0, 0, UnityEngine.Screen.width, UnityEngine.Screen.height), new Color(0.05f, 0.06f, 0.09f, 0.92f));
-            Fill(new Rect(0, 0, UnityEngine.Screen.width, 4f), new Color(1f, 0.8f, 0.2f, 0.9f));
+            Fill(new Rect(0, 0, HudScale.VW, HudScale.VH), new Color(0.05f, 0.06f, 0.09f, 0.92f));
+            Fill(new Rect(0, 0, HudScale.VW, 4f), new Color(1f, 0.8f, 0.2f, 0.9f));
 
             switch (_screen)
             {
@@ -77,13 +78,15 @@ namespace LearnToSpin
                 case Screen.Profiles: DrawProfiles(); break;
                 case Screen.Settings: DrawSettings(); break;
             }
+
+            HudScale.End();
         }
 
         void DrawTitle()
         {
-            float bw = Mathf.Min(360f, UnityEngine.Screen.width - 80f);
-            float bx = (UnityEngine.Screen.width - bw) * 0.5f;
-            float full = UnityEngine.Screen.width; // title spans the window so it never clips
+            float bw = Mathf.Min(360f, HudScale.VW - 80f);
+            float bx = (HudScale.VW - bw) * 0.5f;
+            float full = HudScale.VW; // title spans the window so it never clips
 
             const float titleH = 64f, subH = 26f, spacer = 40f, btnH = 54f, btnGap = 16f;
             float blockH = titleH + subH + spacer + btnH * 3f + btnGap * 2f;
@@ -110,8 +113,8 @@ namespace LearnToSpin
 
         void DrawProfiles()
         {
-            float w = Mathf.Min(620f, UnityEngine.Screen.width - 40f);
-            float x = (UnityEngine.Screen.width - w) * 0.5f;
+            float w = Mathf.Min(620f, HudScale.VW - 40f);
+            float x = (HudScale.VW - w) * 0.5f;
 
             const float headH = 44f, headGap = 22f, slotH = 96f, slotGap = 14f, backGap = 14f, backH = 42f;
             float blockH = headH + headGap + (slotH + slotGap) * PlayerProgress.SlotCount + backGap + backH;
@@ -196,8 +199,8 @@ namespace LearnToSpin
 
         void DrawSettings()
         {
-            float w = Mathf.Min(520f, UnityEngine.Screen.width - 40f);
-            float x = (UnityEngine.Screen.width - w) * 0.5f;
+            float w = Mathf.Min(520f, HudScale.VW - 40f);
+            float x = (HudScale.VW - w) * 0.5f;
 
             const float headH = 44f, headGap = 22f, boxH = 160f, boxGap = 16f, backH = 42f;
             float blockH = headH + headGap + boxH + boxGap + backH;

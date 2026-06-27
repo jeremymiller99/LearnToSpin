@@ -132,6 +132,12 @@ namespace LearnToSpin
             boot.fencePrefab = LoadOne("white_fence_side");
             boot.lampPrefab = LoadOne("lamp");
 
+            // The ramp prefab (colliders already set up) lives in the wheel pack, not the Dreamplex
+            // prefab root, so load it directly by path.
+            const string rampPath = "Assets/wheel/ladder_prefab.prefab";
+            boot.rampPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(rampPath);
+            if (boot.rampPrefab == null) Debug.LogWarning($"LearnToSpin: missing ramp model at {rampPath}");
+
             // Decorative scenery placed outside the fences by SceneryScatter.
             boot.sceneryTreePrefabs = Load(
                 "Birches/OneModelBirches/birch_small_2_green_leaves",

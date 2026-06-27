@@ -84,15 +84,17 @@ namespace LearnToSpin
         {
             if (director == null || !director.ResultsOpen) return;
             EnsureStyles();
+            HudScale.Begin();
             var s = director.LastRun;
 
-            Fill(new Rect(0, 0, Screen.width, Screen.height),
+            float vw = HudScale.VW, vh = HudScale.VH;
+            Fill(new Rect(0, 0, vw, vh),
                  new Color(0.05f, 0.06f, 0.09f, 0.82f * Smooth(_t / IntroDur)));
 
-            float pw = Mathf.Min(700f, Screen.width - 40f);
-            float ph = Mathf.Min(524f, Screen.height - 40f);
-            float px = (Screen.width - pw) * 0.5f;
-            float py = (Screen.height - ph) * 0.5f;
+            float pw = Mathf.Min(700f, vw - 40f);
+            float ph = Mathf.Min(524f, vh - 40f);
+            float px = (vw - pw) * 0.5f;
+            float py = (vh - ph) * 0.5f;
 
             // pop-in: scale the whole panel up from 92%
             var center = new Vector2(px + pw * 0.5f, py + ph * 0.5f);
@@ -109,15 +111,9 @@ namespace LearnToSpin
             GUI.Label(new Rect(ix, py + 58f, iw, 20f),
                       "You earn cash for how FAR, how HIGH, how FAST, and how LONG you hung in the air.", _sub);
 
-            // Better tires pay more per stat — surface the bonus so the higher rates below make sense.
+            // The equipped tire's earnings multiplier is folded into the per-stat rates below
+            // (value × rate = reward), so it's shown there rather than called out separately.
             float em = s.earnMultiplier > 0.01f ? s.earnMultiplier : 1f;
-            if (em > 1.001f)
-            {
-                SetAlpha(_sub, new Color(Gold.r, Gold.g, Gold.b, 1f));
-                GUI.Label(new Rect(ix, py + 76f, iw, 18f),
-                          $"⚡ {s.tireName}:  ×{em:0.0} earnings on every stat", _sub);
-                SetAlpha(_sub, new Color(0.92f, 0.94f, 0.98f, 1f));
-            }
 
             // stat rows — rates shown INCLUDE the tire's earnings multiplier so value × rate = reward.
             float rowY = py + 96f, rowH = 50f;
@@ -168,6 +164,7 @@ namespace LearnToSpin
 
             GUI.matrix = m;
             GUI.color = Color.white;
+            HudScale.End();
         }
 
         /// <summary>

@@ -58,6 +58,10 @@ namespace LearnToSpin
         [Header("Rolling / run end")]
         [Tooltip("Gentle constant decel while rolling, m/s^2 — light enough to keep the glide.")]
         public float rollingResistance = 0.8f;
+        [Tooltip("Forward speed under which the slow-down brake kicks in (m/s).")]
+        public float slowSpeed = 10f;
+        [Tooltip("Extra decel once below slowSpeed, so the tire bleeds speed faster down the tail.")]
+        public float slowBrake = 2.5f;
         [Tooltip("Extra decel once below crawlSpeed, to kill the slow tail.")]
         public float tailBrake = 5f;
         [Tooltip("Forward speed under which the tail brake (and spin bleed) kick in.")]
@@ -229,7 +233,10 @@ namespace LearnToSpin
             if (v.z <= 0f) return;
 
             bool crawling = v.z < crawlSpeed;
-            float dec = rollingResistance + (crawling ? tailBrake : 0f);
+            // Light glide at speed; ramp up the braking below slowSpeed, then hammer it at a crawl.
+            float dec = rollingResistance
+                        + (v.z < slowSpeed ? slowBrake : 0f)
+                        + (crawling ? tailBrake : 0f);
             v.z = Mathf.Max(0f, v.z - dec * dt);
             _rb.linearVelocity = v;
 

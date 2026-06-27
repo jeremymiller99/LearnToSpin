@@ -101,7 +101,10 @@ namespace LearnToSpin
             float intensity = Intensity();
             if (intensity <= 0.001f || Event.current.type != EventType.Repaint) return;
 
-            float w = Screen.width, h = Screen.height;
+            // Lay the streaks out in the shared 960×600 design space so they fill the window and the
+            // streak thickness scales with it (instead of staying a fixed pixel width at high res).
+            HudScale.Begin();
+            float w = HudScale.VW, h = HudScale.VH;
             float cx = w * 0.5f, cy = h * 0.5f;
             float shortEdge = Mathf.Min(w, h);
             float inner = innerClear * shortEdge;
@@ -129,6 +132,7 @@ namespace LearnToSpin
 
             GUI.matrix = baseMatrix;
             GUI.color = prev;
+            HudScale.End();
         }
     }
 }

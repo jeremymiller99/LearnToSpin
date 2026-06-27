@@ -119,7 +119,7 @@ namespace LearnToSpin
         /// then every 220 m) with size growing gently before it caps, so there's always a ramp line
         /// ahead no matter how far the run goes.
         /// </summary>
-        public static void BuildRampSlice(PhysicsMaterial grip, Transform parent, float z0, float z1)
+        public static void BuildRampSlice(GameBootstrap boot, PhysicsMaterial grip, Transform parent, float z0, float z1)
         {
             const float first = 140f, spacing = 220f;
             int lo = Mathf.CeilToInt((z0 - first) / spacing);
@@ -129,7 +129,10 @@ namespace LearnToSpin
                 float z = first + k * spacing;
                 float angle = Mathf.Min(22f, 12f + k * 1.2f);
                 float length = Mathf.Min(15f, 9f + k * 0.8f);
-                BuildRamp(grip, parent, z, angle, length);
+                // Nudge it lightly off-centre (a side each time) so the ramp line isn't always dead
+                // middle — still easily reachable within the lane, just enough to make you steer.
+                float x = Random.Range(2f, 4.5f) * (Random.value < 0.5f ? -1f : 1f);
+                BuildRamp(boot, grip, parent, z, angle, length, x);
             }
         }
 
@@ -177,8 +180,40 @@ namespace LearnToSpin
             return go;
         }
 
-        /// <summary>One ramp — hit it hot and you fly. Left as a primitive for now.</summary>
-        static void BuildRamp(PhysicsMaterial grip, Transform parent, float z, float angleDeg, float length)
+        /// <summary>
+        /// One ramp — hit it hot and you fly. When <see cref="GameBootstrap.rampPrefab"/> is wired we
+        /// instantiate that model (it ships with its own colliders) and just tip it from upright into
+        /// the ramp angle; otherwise we fall back to the old primitive wedge.
+        /// </summary>
+        static void BuildRamp(GameBootstrap boot, PhysicsMaterial grip, Transform parent, float z, float angleDeg, float length, float x)
+        {
+            if (boot == null || boot.rampPrefab == null)
+            {
+                BuildPrimitiveRamp(grip, parent, z, angleDeg, length, x);
+                return;
+            }
+
+            var ramp = Object.Instantiate(boot.rampPrefab);
+            ramp.transform.SetParent(parent, true);
+            ramp.name = $"Ramp_{z:0}m";
+
+            // The model is authored standing straight up (long axis +Y). First yaw it -90° about its
+            // own Y to face the right way, then tip it forward about X so it rises toward +Z: 90°
+            // would leave it vertical, so (90 - angle) lands it at the shallow ramp slope. Negate the
+            // X angle if it ends up leaning the wrong way.
+            ramp.transform.rotation = Quaternion.Euler(90f - angleDeg, 0f, 0f) * Quaternion.Euler(0f, -90f, 0f);
+
+            // Sit it on the ground at this z, nudged to x across the lane — robust to the prefab's pivot.
+            Bounds b = BuildUtils.RendererBounds(ramp);
+            ramp.transform.position += new Vector3(x - b.center.x, -b.min.y, z - b.center.z);
+
+            // Roll on the launch grip surface, using whatever solid colliders the prefab ships with.
+            foreach (var c in ramp.GetComponentsInChildren<Collider>())
+                if (!c.isTrigger) c.material = grip;
+        }
+
+        /// <summary>Fallback wedge when no ramp model is wired — a plain angled box.</summary>
+        static void BuildPrimitiveRamp(PhysicsMaterial grip, Transform parent, float z, float angleDeg, float length, float x)
         {
             var ramp = GameObject.CreatePrimitive(PrimitiveType.Cube);
             ramp.transform.SetParent(parent, true);
@@ -187,7 +222,7 @@ namespace LearnToSpin
             // rotate around the axle so the +Z end rises; sink the base into the ground
             ramp.transform.rotation = Quaternion.Euler(-angleDeg, 0f, 0f);
             float rise = Mathf.Sin(angleDeg * Mathf.Deg2Rad) * length * 0.5f;
-            ramp.transform.position = new Vector3(0f, rise - 0.2f, z);
+            ramp.transform.position = new Vector3(x, rise - 0.2f, z);
             ramp.GetComponent<MeshRenderer>().sharedMaterial = BuildUtils.Lit(new Color(0.5f, 0.35f, 0.2f));
             ramp.GetComponent<Collider>().material = grip;
         }

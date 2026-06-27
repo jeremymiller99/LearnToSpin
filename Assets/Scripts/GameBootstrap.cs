@@ -82,6 +82,9 @@ namespace LearnToSpin
         public GameObject fencePrefab;
         [Tooltip("lamp — placed every 100 m as a distance marker.")]
         public GameObject lampPrefab;
+        [Tooltip("Launch ramp model. Rendered on top of an invisible angled box collider (the box " +
+                 "stays the physics surface). Falls back to a plain wedge cube when left empty.")]
+        public GameObject rampPrefab;
         [Tooltip("Decorative trees scattered outside the fences (set dressing only).")]
         public GameObject[] sceneryTreePrefabs;
         [Tooltip("Decorative bushes scattered outside the fences (set dressing only).")]

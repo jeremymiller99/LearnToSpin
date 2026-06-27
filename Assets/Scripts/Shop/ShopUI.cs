@@ -69,17 +69,19 @@ namespace LearnToSpin
         {
             if (director == null || !director.ShopOpen) { _selected = -1; return; }
             EnsureStyles();
+            HudScale.Begin();
 
             // Default the info column to whatever's currently equipped until the player picks another.
             if (_selected < 0 || _selected >= director.Catalog.tires.Length)
                 _selected = Mathf.Max(0, director.Progress.equippedIndex);
 
-            Fill(new Rect(0, 0, Screen.width, Screen.height), new Color(0.05f, 0.06f, 0.09f, 0.78f));
+            float vw = HudScale.VW, vh = HudScale.VH;
+            Fill(new Rect(0, 0, vw, vh), new Color(0.05f, 0.06f, 0.09f, 0.78f));
 
-            float pw = Mathf.Min(1180f, Screen.width - 40f);
-            float ph = Mathf.Min(640f, Screen.height - 40f);
-            float px = (Screen.width - pw) * 0.5f;
-            float py = (Screen.height - ph) * 0.5f;
+            float pw = Mathf.Min(1180f, vw - 40f);
+            float ph = Mathf.Min(640f, vh - 40f);
+            float px = (vw - pw) * 0.5f;
+            float py = (vh - ph) * 0.5f;
             var panel = new Rect(px, py, pw, ph);
             Fill(panel, new Color(0.11f, 0.12f, 0.16f, 0.97f));
             Fill(new Rect(px, py, pw, 3f), new Color(1f, 0.8f, 0.2f, 0.9f));
@@ -118,6 +120,8 @@ namespace LearnToSpin
             if (GUI.Button(launchRect, "▶  LAUNCH   (Space / Enter)", _btn))
                 director.StartNextRun();
             GUI.backgroundColor = prev;
+
+            HudScale.End();
         }
 
         float DrawRunSummary(float x, float y, float w)
@@ -300,10 +304,10 @@ namespace LearnToSpin
 
             float pad = 12f;
             float ix = x + pad, iw = w - pad * 2f;
-            float iy = y + 40f;
+            float iy = y + 36f;
 
             // Blown-up icon.
-            float iconBox = Mathf.Min(iw, 120f);
+            float iconBox = Mathf.Min(iw, 96f);
             var iconRect = new Rect(x + (w - iconBox) * 0.5f, iy, iconBox, iconBox);
             Fill(iconRect, new Color(1f, 1f, 1f, 0.04f));
             if (def.icon != null)
@@ -316,13 +320,13 @@ namespace LearnToSpin
             iy = iconRect.yMax + 8f;
 
             // Name + status.
-            GUI.Label(new Rect(ix, iy, iw, 26f), def.displayName,
+            GUI.Label(new Rect(ix, iy, iw, 24f), def.displayName,
                       new GUIStyle(_h) { alignment = TextAnchor.MiddleCenter });
-            iy += 26f;
+            iy += 24f;
             string status = equipped ? "Equipped" : owned ? "Owned" : $"Locked — ${def.price:N0}";
             GUI.Label(new Rect(ix, iy, iw, 18f), status,
                       new GUIStyle(_small) { alignment = TextAnchor.MiddleCenter });
-            iy += 24f;
+            iy += 22f;
 
             // Stat bars (include current upgrades).
             var eff = director.EffectiveFor(idx);
@@ -340,21 +344,6 @@ namespace LearnToSpin
             iy = StatBar(ix, iy, iw, "Earnings", em, 1f, 5.5f, "×{0:0.0}");
             iy += 4f;
             GUI.Label(new Rect(ix, iy, iw, 28f), "(bars include upgrades; Earnings is per-tier)", _small);
-
-            // Equip pinned to the bottom of the column (buying happens from the tire grid).
-            var prev = GUI.backgroundColor;
-            var btn = new Rect(ix, y + h - pad - 30f, iw, 30f);
-            if (equipped)
-            {
-                GUI.Label(btn, "Equipped",
-                          new GUIStyle(_body) { alignment = TextAnchor.MiddleCenter, fontStyle = FontStyle.Bold });
-            }
-            else if (owned)
-            {
-                GUI.backgroundColor = new Color(0.25f, 0.55f, 0.85f);
-                if (GUI.Button(btn, "Equip", _btn)) director.EquipTire(idx);
-            }
-            GUI.backgroundColor = prev;
         }
 
         /// <summary>One labelled stat bar normalised between lo..hi, returns the next y.</summary>
@@ -368,7 +357,7 @@ namespace LearnToSpin
             Fill(track, new Color(1f, 1f, 1f, 0.08f));
             float n = Mathf.Clamp01((value - lo) / Mathf.Max(0.0001f, hi - lo));
             Fill(new Rect(track.x, track.y, track.width * n, track.height), new Color(1f, 0.8f, 0.2f, 0.9f));
-            return y + 32f;
+            return y + 30f;
         }
     }
 }

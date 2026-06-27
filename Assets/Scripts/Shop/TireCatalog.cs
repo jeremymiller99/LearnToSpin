@@ -63,8 +63,9 @@ namespace LearnToSpin
                     // Steep geometric price curve tuned to the earn-multiplier economy below: a ~1500
                     // first run buys only the FIRST tire, and every tier after is a deliberate next
                     // goal funded by the rising payout — you can't skip the early tiers on one good
-                    // run (Trainer $1k → Plasma ~$470k).
-                    price = i == 0 ? 0 : Mathf.RoundToInt(1000f * Mathf.Pow(1.85f, i - 1) / 10f) * 10,
+                    // run. The ~2.05× per-tier growth makes each new tire roughly double the last, so
+                    // the top tiers are genuine long-haul investments (Trainer $1k → Plasma ~$1.3M).
+                    price = i == 0 ? 0 : Mathf.RoundToInt(1000f * Mathf.Pow(2.05f, i - 1) / 50f) * 50,
                     // size/weight wobble so tiers feel distinct rather than a flat ramp
                     mass = 16f + (i % 3) * 4f + i * 0.5f,
                     radius = 0.45f + (i % 4) * 0.05f,
@@ -75,10 +76,11 @@ namespace LearnToSpin
                     // Upgrades pay off MUCH harder on better tires (1.0 → ~2.8×), so maxing a
                     // premium tire stacks into borderline-OP launches while the starter stays tame.
                     upgradePotency = 1f + i * 0.16f,
-                    // Better tires also EARN more from every run stat (1× → ~5.4×), on a gently
+                    // Better tires also EARN more from every run stat (1× → ~7.7×), on an
                     // accelerating curve so premium tires snowball: they fly further AND bank more
-                    // per metre/speed/height/air, which is what funds the steep price curve above.
-                    earnMultiplier = 1f + i * 0.18f + i * i * 0.02f,
+                    // per metre/speed/height/air. The steeper earn ramp keeps pace with the steeper
+                    // (~doubling) price curve above so each next tier stays a reachable goal.
+                    earnMultiplier = 1f + i * 0.22f + i * i * 0.035f,
                 };
             }
             return c;

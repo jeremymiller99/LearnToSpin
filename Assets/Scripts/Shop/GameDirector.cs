@@ -52,6 +52,7 @@ namespace LearnToSpin
             _chase = Camera.main != null ? Camera.main.GetComponent<ChaseCamera>() : null;
             RigBuilder.BuildUI(_launcher);
             _launchUI = FindFirstObjectByType<LaunchUI>();
+            if (_launchUI != null) _launchUI.director = this;
             ApplyHudTheme();
 
             // Skate-style trick meter that pops around the tire on big air.
@@ -59,9 +60,10 @@ namespace LearnToSpin
             _trick.launcher = _launcher;
             _trick.target = _tire.transform;
 
-            // Stream the endless terrain around the tire (needs the tire to exist first).
+            // Stream the endless terrain around the tire (needs the tire to exist first). Seeded by
+            // the current day so each day's run is a brand-new layout (see WorldSeedForDay).
             _streamer = new GameObject("WorldStreamer").AddComponent<WorldStreamer>();
-            _streamer.Init(boot, grip, _tire.transform);
+            _streamer.Init(boot, grip, _tire.transform, WorldSeedForDay());
 
             var results = new GameObject("ResultsUI").AddComponent<ResultsUI>();
             results.director = this;
@@ -169,10 +171,15 @@ namespace LearnToSpin
             if (_launchUI != null) _launchUI.launcher = _launcher;
             if (_trick != null) { _trick.launcher = _launcher; _trick.target = _tire.transform; }
             ApplyHudTheme();
-            // Regenerate the world from the start for the new run.
-            if (_streamer != null) _streamer.Retarget(_tire.transform);
+            // Regenerate the world from the start for the new run — a new day means a new layout.
+            if (_streamer != null) _streamer.Retarget(_tire.transform, WorldSeedForDay());
             if (_launcher != null) _launcher.enabled = false; // stay frozen until the fade-in ends
         }
+
+        /// <summary>Terrain seed for the current day. Folds the world-style seed together with the
+        /// day number so every day generates a fresh layout, while staying deterministic within the
+        /// day (so the endless streamer's recycled chunks regenerate identically as you roll).</summary>
+        int WorldSeedForDay() => _boot.worldSeed + Progress.day * 7919;
 
         /// <summary>Day-transition fade-in finished: hand control back to the player.</summary>
         public void OnTransitionDone()

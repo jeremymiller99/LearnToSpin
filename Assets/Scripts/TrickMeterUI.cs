@@ -96,8 +96,9 @@ namespace LearnToSpin
             _prevAir = air;
         }
 
-        /// <summary>Tire centre projected into GUI (top-left origin) space; <paramref name="onScreen"/>
-        /// is false when it's behind the camera or there's nothing to anchor to.</summary>
+        /// <summary>Tire centre projected into GUI design space (top-left origin, 960×600 units so it
+        /// lines up under <see cref="HudScale"/>); <paramref name="onScreen"/> is false when it's
+        /// behind the camera or there's nothing to anchor to.</summary>
         Vector2 ScreenAnchor(out bool onScreen)
         {
             onScreen = false;
@@ -106,13 +107,14 @@ namespace LearnToSpin
             Vector3 sp = cam.WorldToScreenPoint(target.position);
             if (sp.z <= 0f) return Vector2.zero;
             onScreen = true;
-            return new Vector2(sp.x, Screen.height - sp.y);
+            return HudScale.ToVirtual(new Vector2(sp.x, Screen.height - sp.y));
         }
 
         void OnGUI()
         {
             if (launcher == null) return;
             EnsureStyles();
+            HudScale.Begin();
 
             float air = launcher.CurrentAirTime;
             bool flying = air > showThreshold
@@ -124,6 +126,8 @@ namespace LearnToSpin
             }
 
             if (_stamp > 0f) DrawStamp();
+
+            HudScale.End();
         }
 
         // ---- live meter (spinning ring + readout) ----
@@ -146,8 +150,8 @@ namespace LearnToSpin
             float px = anchor.x + 38f;
             float py = anchor.y - 96f;
             // keep it on screen
-            px = Mathf.Clamp(px, 8f, Screen.width - pw - 8f);
-            py = Mathf.Clamp(py, 8f, Screen.height - ph - 8f);
+            px = Mathf.Clamp(px, 8f, HudScale.VW - pw - 8f);
+            py = Mathf.Clamp(py, 8f, HudScale.VH - ph - 8f);
             var panel = new Rect(px, py, pw, ph);
 
             Matrix4x4 m = GUI.matrix;
@@ -202,8 +206,8 @@ namespace LearnToSpin
             float pop = 1f + 0.25f * Mathf.Clamp01((1f - k) * 6f); // tiny punch-in on appear
 
             float pw = 220f, ph = 64f;
-            float px = Mathf.Clamp(_stampAnchor.x - pw * 0.5f, 8f, Screen.width - pw - 8f);
-            float py = Mathf.Clamp(_stampAnchor.y - 70f - rise, 8f, Screen.height - ph - 8f);
+            float px = Mathf.Clamp(_stampAnchor.x - pw * 0.5f, 8f, HudScale.VW - pw - 8f);
+            float py = Mathf.Clamp(_stampAnchor.y - 70f - rise, 8f, HudScale.VH - ph - 8f);
             var panel = new Rect(px, py, pw, ph);
 
             Matrix4x4 m = GUI.matrix;
