@@ -74,6 +74,8 @@ namespace LearnToSpin
             // Fade-to-black "Day X" card that hides the tire teleport between runs.
             _dayTransition = new GameObject("DayTransitionUI").AddComponent<DayTransitionUI>();
             _dayTransition.director = this;
+
+            if (AudioManager.Instance != null) AudioManager.Instance.SetMusicMode(1);
         }
 
         void BuildTire()
@@ -129,6 +131,9 @@ namespace LearnToSpin
             ResultsOpen = true;
             ShopOpen = false;
             if (_launcher != null) _launcher.enabled = false; // freeze input (R/Space) while the screens are up
+
+            // AUDIO: Switch to Menu Music (0)
+            if (AudioManager.Instance != null) AudioManager.Instance.SetMusicMode(0);
         }
 
         /// <summary>Results screen "Continue": hand off to the shop.</summary>
@@ -185,6 +190,8 @@ namespace LearnToSpin
         public void OnTransitionDone()
         {
             if (_launcher != null) _launcher.enabled = true;
+
+            if (AudioManager.Instance != null) AudioManager.Instance.SetMusicMode(1);
         }
 
         /// <summary>Style the in-run HUD to match the equipped tire (accent + tier flourishes).</summary>

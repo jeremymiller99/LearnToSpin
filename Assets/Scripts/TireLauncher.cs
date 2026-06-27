@@ -149,6 +149,7 @@ namespace LearnToSpin
                     break;
 
                 case State.Charging:
+                    AudioManager.Instance.SetRevving(true);
                     _charge = Mathf.Min(maxSpin, _charge + chargeRate * Time.deltaTime);
                     transform.Rotate(Vector3.right, _charge * Time.deltaTime * Mathf.Rad2Deg, Space.Self);
                     if (!kb.spaceKey.isPressed) Launch();
@@ -179,17 +180,58 @@ namespace LearnToSpin
             Boost(kb, dt);
             ApplyRollingResistance(dt);
 
+            // Cache the grounded state so we don't raycast multiple times
+            bool isGrounded = IsGrounded();
+
+            // ==========================================
+            // AUDIO UPDATES
+            // ==========================================
+            if (AudioManager.Instance != null)
+            {
+                bool isRollingWood = false;
+
+                if (isGrounded && Physics.Raycast(transform.position, Vector3.down, out RaycastHit hit, _groundCheck))
+                {
+                    if (hit.collider.name.StartsWith("Ramp"))
+                    {
+                        isRollingWood = true;
+                    }
+                }
+
+                bool isMoving = Speed > 1.0f;
+                AudioManager.Instance.SetRolling(isGrounded && !isRollingWood && isMoving, 
+                                                 isGrounded && isRollingWood && isMoving);
+
+                AudioManager.Instance.SetAirWhoosh(!isGrounded, Mathf.Clamp01(Speed / 50f));
+
+                // NEW: Play the revving sound whenever the player is actively boosting
+                AudioManager.Instance.SetRevving(IsBoosting); 
+            }
+            // ==========================================
+
             // End on FORWARD speed only (so wiggling sideways can't keep the run alive),
             // and only while grounded and not actively boosting.
-            bool slow = IsGrounded() && !IsBoosting
+            bool slow = isGrounded && !IsBoosting
                         && _rb.linearVelocity.z < stopSpeed
                         && _rb.angularVelocity.magnitude < 3f;
+
             _stopTimer = slow ? _stopTimer + dt : 0f;
             if (_stopTimer >= stopGrace)
             {
                 CurrentState = State.Stopped;
                 IsBoosting = false;
                 BestDistance = Mathf.Max(BestDistance, Distance);
+
+                // Let the audio manager know we stopped moving
+                if (AudioManager.Instance != null)
+                {
+                    AudioManager.Instance.SetRolling(false, false);
+                    AudioManager.Instance.SetAirWhoosh(false, 0f);
+
+                    // NEW: Ensure the revving stops (and fades out) when the run ends
+                    AudioManager.Instance.SetRevving(false); 
+                }
+
                 // Play the topple first; RunEnded (payout + shop) fires once it has settled flat.
                 BeginTopple();
             }
@@ -214,6 +256,7 @@ namespace LearnToSpin
             Vector3 v = _rb.linearVelocity;
             float vDown = -v.y;                 // positive while falling onto the surface
             if (vDown < minBounceSpeed) return; // tiny taps just roll
+            AudioManager.Instance.PlayLand(c.GetContact(0).point);
 
             float impact = bounciness * vDown;
             v.y = Mathf.Min(maxBounceUp, impact * bounceUpKeep); // limited hop
@@ -338,6 +381,11 @@ namespace LearnToSpin
             LastWasPerfect = perfect;
             PerfectFlash = perfect ? 1.5f : 0f;
 
+            AudioManager.Instance.SetRevving(false);
+            AudioManager.Instance.PlayTireLaunch();
+            if (perfect) {
+                AudioManager.Instance.PlayLaunchPerfect();
+            }
             CurrentState = State.Launched;
             _reserve = boostReserve;
             _lastGroundTime = Time.time; // on the ground at lift-off — don't read the launch frame as air

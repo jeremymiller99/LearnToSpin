@@ -74,7 +74,14 @@ namespace LearnToSpin
             if (air > showThreshold)
             {
                 int t = TierIndex(air);
-                if (t > _prevTier) _tierPop = 1f;
+                if (t > _prevTier) 
+                    {
+                        _tierPop = 1f;
+                        if (t == 1) AudioManager.Instance.PlayTrickNice();
+                        else if (t == 2) AudioManager.Instance.PlayTrickSick();
+                        else if (t == 3) AudioManager.Instance.PlayTrickInsane();
+                        else if (t == 4) AudioManager.Instance.PlayTrickGodlike();
+                    }
                 _prevTier = t;
             }
             else

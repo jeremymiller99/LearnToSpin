@@ -64,19 +64,54 @@ namespace LearnToSpin
             var prev = GUI.color; GUI.color = c; GUI.DrawTexture(r, _white); GUI.color = prev;
         }
 
+        bool _playedFinalDing = false; // Add this variable to your class
+
         void Update()
         {
             if (director == null) return;
-            if (!director.ResultsOpen) { _wasOpen = false; return; }
-
-            if (!_wasOpen) { _t = 0f; _wasOpen = true; }
+            if (!director.ResultsOpen) { _wasOpen = false; _playedFinalDing = false; return; }
+        
+            if (!_wasOpen) { _t = 0f; _wasOpen = true; _playedFinalDing = false; }
             _t += Time.unscaledDeltaTime;
-
+        
+            // --- AUDIO: Loop money counting ---
+            if (AudioManager.Instance != null)
+            {
+                bool isCounting = false;
+                for (int i = 0; i < 4; i++) {
+                    if (_t > (RowsStart + i * RowStagger) && _t < (RowsStart + i * RowStagger + RowCount)) isCounting = true;
+                }
+                if (_t > WalletStart && _t < (WalletStart + WalletDur)) isCounting = true;
+        
+                AudioManager.Instance.SetMoneyCounting(isCounting);
+        
+                // --- AUDIO: Final Ding Logic ---
+                // Play only once when the wallet animation finishes
+                if (_t >= (WalletStart + WalletDur) && !_playedFinalDing)
+                {
+                    AudioManager.Instance.PlayMoneyStop();
+                    _playedFinalDing = true;
+                }
+            }
+            // ==========================================
+        
             var kb = Keyboard.current;
             if (kb != null && (kb.spaceKey.wasPressedThisFrame || kb.enterKey.wasPressedThisFrame))
             {
-                if (_t < FullDur) _t = FullDur;     // first press: skip to the end
-                else director.ContinueToShop();      // second press: move on
+                if (_t < FullDur) 
+                {
+                    _t = FullDur;     // first press: skip to the end
+                    
+                    // AUDIO: Immediately cut off the counting sound if the player skips the animation
+                    if (AudioManager.Instance != null) AudioManager.Instance.SetMoneyCounting(false);
+                }
+                else 
+                {
+                    // AUDIO: Button click sound
+                    if (AudioManager.Instance != null) AudioManager.Instance.PlayBtnClick();
+                    
+                    director.ContinueToShop();      // second press: move on
+                }
             }
         }
 
@@ -153,7 +188,10 @@ namespace LearnToSpin
                 var prev = GUI.backgroundColor;
                 GUI.backgroundColor = new Color(0.2f, 0.7f, 0.3f);
                 if (GUI.Button(new Rect(ix, py + ph - 58f, iw, 42f), "Continue to Shop  ▶", _btn))
+                {
+                    if (AudioManager.Instance != null) AudioManager.Instance.PlayBtnClick(); // AUDIO
                     director.ContinueToShop();
+                }
                 GUI.backgroundColor = prev;
             }
             else
