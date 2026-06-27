@@ -351,6 +351,13 @@ MonoBehaviour:
       Data3: -1304222557
       Data4: 1517632823
     Path: event:/tire_launch
+  tireImpactRef:
+    Guid:
+      Data1: 1307943326
+      Data2: 1320663947
+      Data3: -1996594780
+      Data4: 1483923269
+    Path: event:/tire_impact
   musicRef:
     Guid:
       Data1: 1132875713
