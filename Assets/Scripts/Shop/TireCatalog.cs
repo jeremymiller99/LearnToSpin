@@ -76,11 +76,12 @@ namespace LearnToSpin
                     // Upgrades pay off MUCH harder on better tires (1.0 → ~2.8×), so maxing a
                     // premium tire stacks into borderline-OP launches while the starter stays tame.
                     upgradePotency = 1f + i * 0.16f,
-                    // Better tires also EARN more from every run stat (1× → ~7.7×), on an
-                    // accelerating curve so premium tires snowball: they fly further AND bank more
-                    // per metre/speed/height/air. The steeper earn ramp keeps pace with the steeper
-                    // (~doubling) price curve above so each next tier stays a reachable goal.
-                    earnMultiplier = 1f + i * 0.22f + i * i * 0.035f,
+                    // Better tires also EARN more from every run stat, and the multiplier now grows
+                    // GEOMETRICALLY (1× → ~15× at the top) instead of on a gentle quadratic. The
+                    // ~1.28× per-tier earn growth keeps the late game from turning into a grind
+                    // while early tiers keep their tame, stock-ish payout — a steady, sane ramp
+                    // rather than the runaway ~1000× the steeper curve produced.
+                    earnMultiplier = Mathf.Pow(1.28f, i),
                 };
             }
             return c;

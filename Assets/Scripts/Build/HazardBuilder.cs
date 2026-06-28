@@ -21,8 +21,13 @@ namespace LearnToSpin
             float z = Mathf.Max(z0, StartClear) + Random.Range(0f, 35f);
             while (z < z1)
             {
-                // bias off-centre so the central ramp line stays runnable, but vary the side
-                float x = Random.Range(2.5f, LaneHalf) * (Random.value < 0.5f ? -1f : 1f);
+                // Most hazards bias off-centre so the ramp line stays mostly runnable and the side
+                // varies, but a fraction sit on the centre line — otherwise going dead-straight down
+                // the middle was a free, risk-free path (hazards are non-solid, so a centre hit just
+                // bleeds speed/spin and the player can still weave or power through).
+                float x = Random.value < 0.35f
+                    ? Random.Range(-2.5f, 2.5f)
+                    : Random.Range(2.5f, LaneHalf) * (Random.value < 0.5f ? -1f : 1f);
 
                 if (useArt) BuildArtHazard(boot, x, z, parent);
                 else BuildPrimitiveHazard(x, z, parent);

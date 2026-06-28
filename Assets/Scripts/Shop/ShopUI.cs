@@ -391,7 +391,7 @@ namespace LearnToSpin
             // Earnings: how much MORE cash this tire banks per run stat than the starter. Tier-based
             // (not upgraded), so it's the headline reason to keep climbing the tire ladder.
             float em = def.earnMultiplier > 0.01f ? def.earnMultiplier : 1f;
-            iy = StatBar(ix, iy, iw, "Earnings", em, 1f, 5.5f, "×{0:0.0}");
+            iy = StatBar(ix, iy, iw, "Earnings", em, 1f, 16f, "×{0:0.0}");
             iy += 4f;
             GUI.Label(new Rect(ix, iy, iw, 28f), "(bars include upgrades; Earnings is per-tier)", _small);
         }
